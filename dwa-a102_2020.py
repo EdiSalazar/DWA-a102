@@ -5,15 +5,18 @@ Following new DWA-102 (Dec. 2020)
 
 @author: Edwin Echeverri
 """
-
 import numpy as np
+import pandas as pd
+
 
 #%% Berechnungsansatz B.3.1: Steildach (alle Deckungsmaterialien),
 #### Flachdach (Metall, Glas)  
-def steeproof(P, ETp, Sp = 0.3):
-    '''storage height (Sp) in roofs varies between 0.1 and 0.6 mm.
-    Standard storage value for steep roof in general is 0.3 mm, 
-    in case of glass or metal cover use 0.6 mm
+def steep_roof(Area, P, ETp, Sp = 0.3):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). Storage height (Sp) in roofs varies
+    between 0.1 and 0.6 mm. Standard storage value for steep roof
+    in general is 0.3 mm, in case of glass or metal cover use 0.6 mm
     '''  
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -28,21 +31,41 @@ def steeproof(P, ETp, Sp = 0.3):
     a = 0.9115 + 0.00007063*P - 0.000007498*ETp - 0.2063*np.log(Sp + 1)
     g = 0
     v = 1-a-g
-    pfractions = (a, g, v)
-    return(pfractions)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000    
+    # pfractions = (a, g, v)
+    results = [{'Name' : "P", 'Unit': "mm/year", 'Value': P},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow / Zufluss", 'Unit': "m3/year", 'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    return(pd.DataFrame(results))
 
 # Test
-steeproof(500, 450)
-steeproof(499, 450, 0.3)
-steeproof(600, 440, 0.3)
-steeproof(550, 450, 0.01)
-steeproof(550, 450, 0.3)
-print(steeproof(550, 450, 0.3))
-sum(steeproof(550, 450, 0.3))
+steep_roof(1000, 800, 500)
+steep_roof(499, 450, 0.3)
+steep_roof(600, 440, 0.3)
+steep_roof(550, 450, 0.01)
+steep_roof(550, 450, 0.3)
+print(steep_roof(550, 450, 0.3))
+sum(steep_roof(550, 450, 0.3))
 
 #%% Berechnungsansatz B.3.2: Flachdach (Dachpappe, Faserzement, Kies),
 #### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
-def flatroof(P, ETp, Sp = 1.0):
+def flat_roof(P, ETp, Sp = 1.0):
     '''storage (Sp) in flat roofs varies between 0.6 and 3 mm.
     Standard Sp-values are:
     Flat roof with rough cover = 1;
@@ -67,12 +90,12 @@ def flatroof(P, ETp, Sp = 1.0):
     return(pfractions)
 
 # Test
-print(flatroof(450, 450, 0.3))
-print(flatroof(550, 450, 0.6))
-sum(flatroof(550, 450, 0.6))
+print(flat_roof(450, 450, 0.3))
+print(flat_roof(550, 450, 0.6))
+sum(flat_roof(550, 450, 0.6))
 
 #%% Berechnungsansatz B.3.3: Gründach
-def greenroof(P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
+def green_roof(P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
     '''heigth (h) corresponds to the installation heigth of the green 
     roof (mm), kf stands for hydraulic conductivity (mm/h),
     WKmax corresponds to maximal water capacity (-) and WP to wilting 
@@ -105,12 +128,12 @@ def greenroof(P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
     return(pfractions)
 
 # Test
-print(greenroof(550, 450, 100, 70, 0.9, 0.4))
-greenroof(550, 450, 100)
-sum(greenroof(550, 450, 100, 70, 0.9, 0.4))
+print(green_roof(550, 450, 100, 70, 0.9, 0.4))
+green_roof(550, 450, 100)
+sum(green_roof(550, 450, 100, 70, 0.9, 0.4))
 
 #%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
-def storageroof(P, ETp, Sp = 5):
+def storage_roof(P, ETp, Sp = 5):
     ''' function for roofs with a storage heigth (Sp) desing bigger 
     than 3 mm and lower than 10 mm. Standard value for Sp = 5.
     '''
@@ -131,13 +154,13 @@ def storageroof(P, ETp, Sp = 5):
     return(pfractions)
 
 # Test
-print(storageroof(550, 450, 5))
-sum(storageroof(550, 450, 5))
+print(storage_roof(550, 450, 5))
+sum(storage_roof(550, 450, 5))
 
 #%% Berechnungsansatz B.3.5 & B.3.6: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 2 % bis 10 %)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
-def partpearmsurf(P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
+def permeable_surface(P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
     '''FA corresponds to the joint ratio of the pavers or partially 
     permable elements. The standard storage heigth (Sp) is 1 mm for
     FA = 4, or FA = 8. WKmax corresponds to maximal water capacity (-)
@@ -198,105 +221,12 @@ def partpearmsurf(P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
         return(pfractions)
     
 # Test
-partpearmsurf(650, 500, 8, 36)
-partpearmsurf(650, 500, 4, 18)   
-print(partpearmsurf(650, 500, 4, 18))
-sum(partpearmsurf(650, 500, 4, 18))
-print(partpearmsurf(650, 500, 8, 18))
-sum(partpearmsurf(650, 500, 8, 18))
-
-#%% Berechnungsansatz B.3.5: Teildurchlässige Flächenbeläge
-### (Fugenanteil 2 % bis 5 %)
-# Partially permeable surfaces (Joint ratio 2 % to 5 %)
-def partpearmsurf1(P, ETp, FA = 4, Sp = 1, WKmax = 0.35, WP = 0.2, kf = 36):
-    '''FA corresponds to the joint ratio of the pavers or partially 
-    permable elements, and its standard value is 4. The standard 
-    storage heigth (Sp) is 1 mm. WKmax corresponds to maximal water
-    capacity (-) and WP to wilting point (-). Standard value for 
-    difference (WKmax - WP) is 0.15. kf stands for hydraulic 
-    conductivity (mm/h)
-    '''
-    if (P < 500 or P > 1700):
-        return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
-    if (ETp < 450 or ETp > 700):
-        return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
-    if (FA < 2 or FA > 5):
-        return("The the joint ratio (FA) is out of the range "
-                "of validity for the equation (2 - 5 %)")
-    if (Sp < 0.1 or Sp > 2):
-        return("The value of storage height (Sp) is out of the range "
-                "of validity for the equation (0.1 - 2 mm)") 
-    if ((WKmax-WP) < 0.1 or (WKmax-WP) > 0.2):
-        return("Difference WKmax-WP is out of the range "
-                "of validity for the equation (0.1 - 0.2)")  
-    if (kf < 6 or kf > 100):
-        return("Hydraulic conductivity (kf) is out of the range "
-                "of validity for the equation (6 - 100 mm/h)")
-    
-    a = (0.0800734*np.log(P) - 0.0582828*FA - 0.0501693*Sp
-         - 0.385767*(WKmax - WP) + (8.7040284/(11.9086896+kf)))
-    # DWA-a-102 2020 equation:
-    # g = (-0.2006 - 0.000253*ETp + 0.05615*FA - 0.0636*np.log(1 + Sp)
-    #      + 0.1596*np.log(1 + kf) + 0.2778*(WKmax - WP))
-    v = (0.8529 - 0.1248*np.log(P) + 0.00005057*ETp + 0.002372*FA
-         + 0.1583*np.log(1 + Sp))
-    # To fullfill the conservation mass (a+g+v=1). My decision is to apply:
-    g = 1-a-v
-    pfractions = (a, g, v)
-    return(pfractions)
-
-# Test
-print(partpearmsurf1(650, 500, 4, 1, 0.35, 0.20, 18))
-sum(partpearmsurf1(650, 500, 4, 1, 0.35, 0.20, 18))
-
-
-
-#%% Berechnungsansatz B.3.6: Teildurchlässige Flächenbeläge
-### (Fugenanteil 6 % bis 10 %)
-# Partially permeable surfaces (Joint ratio 6 % to 10 %)
-# This funtion can be joint with the previous one and add the param "slope"
-def partpearmsurf2(P, ETp, FA = 8, Sp = 1, WKmax = 0.35, WP = 0.2, kf = 36):
-    '''FA corresponds to the joint ratio of the pavers or partially 
-    permable elements, and its standard value is 8. The standard 
-    storage heigth (Sp) is 1 mm. WKmax corresponds to maximal water 
-    capacity (-) and WP to wilting point (-). Standard value for 
-    difference (WKmax - WP) is 0.15. kf stands for hydraulic 
-    conductivity (mm/h)
-    '''
-    if (P < 500 or P > 1700):
-        return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
-    if (ETp < 450 or ETp > 700):
-        return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
-    if (FA < 6 or FA > 10):
-        return("The the joint ratio (FA) is out of the range "
-               "of validity for the equation (6 - 10 %)")
-    if (Sp < 0.1 or Sp > 2):
-        return("The value of storage height (Sp) is out of the range "
-               "of validity for the equation (0.1 - 2 mm)") 
-    if ((WKmax-WP) < 0.1 or (WKmax-WP) > 0.2):
-        return("Difference WKmax-WP is out of the range "
-               "of validity for the equation (0.1 - 0.2)")  
-    if (kf < 6 or kf > 100):
-        return("Hydraulic conductivity (kf) is out of the range "
-               "of validity for the equation (6 - 100 mm/h)")
-     
-    a = (0.05912*np.log(P) - 0.02749*FA - 0.03671*Sp - 0.30514*(WKmax - WP)
-         + (4.97687/(4.7975 + kf)))
-    # g = (0.00004941*P - 0.0002817*ETp + 0.02566*FA - 0.03823*Sp
-    #      + 0.691*np.exp(-6.465/kf))
-    v = (0.9012 - 0.1325*np.log(P) + 0.00006661*ETp + 0.002302*FA
-         + 0.1489*np.log(1 + Sp))
-    g = 1 - (a + v)
-    pfractions = (a, g, v)
-    return(pfractions)
-
-# Test
-print(partpearmsurf2(650, 500, 6, 1, 0.35, 0.20, 18))
-sum(partpearmsurf2(650, 500, 6, 1, 0.35, 0.20, 18))
+permeable_surface(650, 500, 8, 36)
+permeable_surface(650, 500, 4, 18)   
+print(permeable_surface(650, 500, 4, 18))
+sum(permeable_surface(650, 500, 4, 18))
+print(permeable_surface(650, 500, 8, 18))
+sum(permeable_surface(650, 500, 8, 18))
 
 #%% Berechnungsansatz B.3.7: Teildurchlässige Flächenbeläge
 ### (Porensteine, Sickersteine), Kiesbelag, Schotterrasen
@@ -519,6 +449,7 @@ print(infilt_swale(1700, 700, 5000))
 print(infilt_swale(1700, 700, 500, 6))
 print(infilt_swale(1700, 700, 500))
 sum(infilt_swale(1700, 700, 500))
+
 #%% Berechnungsansatz B.4.3: Mulde-Rigolen-Elemente
 # Swale-trench element
 def swale_trench(P, ETp, kf, FAsm = "FAsm_standard"):
@@ -554,7 +485,6 @@ print(swale_trench(1500, 700, 12, 6))
 print(swale_trench(1500, 700, 12))
 print(swale_trench(500, 700, 3.6))
 sum(swale_trench(1500, 700, 12))
-
 
 #%% Berechnungsansatz B.4.4: Mulden-Rigolen-System
 # Swale-trench system
@@ -595,7 +525,6 @@ print(swale_trench_system(1500, 700, 6, 2, 5.8))
 print(swale_trench_system(500, 700, 6, 1, 0.4))
 print(swale_trench_system(1700, 450, 6, 2))
 sum(swale_trench_system(1500, 700, 6, 2))
-
 
 #%% Berechnungsansatz B.4.5: Regenwassernutzung
 # Rainwater usage
@@ -649,35 +578,6 @@ def rainwater_usage(P, ETp, VSp, VBr, FAbw = 2, qBw = 60):
 print(rainwater_usage(1500, 700, 100, 3, 2, 201))
 print(rainwater_usage(1500, 700, 100, 3, 2, 60))
 sum(rainwater_usage(1500, 700, 100, 3, 2, 60))
-
-#%% Berechnungsansatz B.4.6: Teichanlage mit Zufluss von befestigten Flächen
-# # Pond system with inflow from paved areas
-def pod_system(P, ETp, Aw, *Azui_aui):
-    '''Aw stands for pod surface (m2),
-    A_i corresponds to the Area i, which directs its runoff to the pond
-    (m2), a_i corresonds to proportion of area i (0.0-1.0), which 
-    directs its runoff to the pond (-)
-    '''
-    if (P < 500 or P > 1700):
-        return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
-    if (ETp < 450 or ETp > 700):
-        return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
-    if len(Azui_aui)%2 != 0:
-        return("Every area that produce runoff should have its "
-               "associate proportion area that produces runoff")
-    else:
-        partialarea = 0
-        for i in range(0, len(Azui_aui), 2):
-            partialarea = partialarea + Azui_aui[i]*Azui_aui[i+1]      
-    v = (ETp*Aw)/(P*(Aw + partialarea))
-    a = 1 - v
-    g = 0
-    pfractions = (a, g, v)
-    return(pfractions)
-print(pod_system(1500, 700, 100, 10, 0.5, 15, 0.6, 20, 0.8))
-sum(pod_system(1500, 700, 100, 10, 0.5, 15, 0.6, 20, 0.8))
 
 #%% Berechnungsansatz B.4.6: Teichanlage mit Zufluss von befestigten Flächen
 # Pond system with inflow from paved areas
