@@ -446,7 +446,7 @@ paver_stonegrid(Area=1000, P=800, ETp=650)
 # Wassergebundene Decke, offiziell Deckschicht ohne Bindemittel (Kürzel: DoB)
 # gravel ground cover
 def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
-    ''' Area corresponds to the surface of the element in m2, P stands
+    '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/year). ETp corresponds to potential
     evapotranspiration (mm/yr). h stands for installation heigth (mm),
     Sp stands for storage heigth (mm), kf corresponds to hydraulic
@@ -505,8 +505,11 @@ gravel_cover(Area = 1000, P = 1000, ETp = 650)
 #%% Berechnungsansatz B.4 Aufteilungswerte und Berechnungsansätze für Anlagen
 # Ableitung: Rohr, Rinne, steiler Graben
 # Drainage: pipe, channel, steep ditch
-def drainage(drainage_type):
-    '''drainge_type is a text input, the possible input options are:
+def drainage(Area, P, ETp, drainage_type):
+    '''Area corresponds to the surface of the element in m2,
+    P stands for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). drainge_type is a text input, the possible
+    input options are:
     "pipe", "Pipe", "PIPE", "Rohr", "rohr", "ROHR", "channel","Channel",
     "CHANNEL", "Rinne", "rinne", "RINNE", "steep ditch", "Steep Ditch",
     "STEEP DITCH", "steiler graben","steiler Graben", "STEILER GRABEN",
@@ -523,19 +526,43 @@ def drainage(drainage_type):
                     "Flache Gräben mit Bewuchs", "Gräben mit Bewuchs")
     #  The input could be change to a numeric value, like 1 = Rohr, Rinne..
     #  and 2 = Flache Gräben mit Bewuchs.
-    if (drainage_type in drainages) == True:
-        return (1, 0, 0)
-    if (drainage_type in veg_drainage) == True:
-        return (0.7, 0.1, 0.2)
-    else:
+    if ((drainage_type in drainages) or (drainage_type in veg_drainage))  == False:
         return ("Wrong input as drinage-type")
+    if (drainage_type in drainages) == True:   
+        a = 1
+        g = 0
+        v = 0
+    if (drainage_type in veg_drainage) == True:
+        a = 0.7
+        g = 0.1
+        v = 0.2
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 # Test
-print(drainage("pipe"))
-sum(drainage("pipe"))
-print(drainage("ditch with vegetation"))
-sum(drainage("ditch with vegetation"))
-print(drainage("wrong name as test"))
-# sum(drainage("wrong name as test"))
+drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "ditch with vegetation")
+drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "Rohr")
+drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "Pip3")
 
 #%% Berechnungsansatz B.4.1: Flächenversickerung
 # Surface infiltration
@@ -818,7 +845,8 @@ sum(rainwater_usage(1500, 700, 100, 3, 2, 60))
 # Pond system with inflow from paved areas
 def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
                A_4= 0, a_4= 0.0):
-    '''Aw stands for pod surface (m2),
+    '''P stands for precipititaion (mm/year). ETp corresponds to 
+    potential evapotranspiration (mm/yr). Aw stands for pod surface (m2),
     A_i corresponds to the Area i, which directs its runoff to the 
     pond (m2), a_i corresonds to proportion of area i (0.0-1.0),
     which directs its runoff to the pond (-)
@@ -845,11 +873,32 @@ def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
     v = (ETp*Aw)/(P*(Aw + A_1*a_1 + A_2*a_2 + A_3*a_3 + A_4*a_4))
     a = 1 - v
     g = 0
-    pfractions = (a, g, v)
-    return(pfractions)
+    Area = Aw + A_1 + A_2 + A_3 + A_4
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Pod area (Aw)", 'Unit': "m2", 'Value': Aw},
+               {'Name' : "Total area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(pod_system(1500, 700, 100, 10, -0.5, 15, 0.6, 20, 1.0))
-print(pod_system(1500, 700, 100, 10, 0.5, 15, 0.6, 20, 1.1))
-print(pod_system(1500, 700, 100, 10, 0.5, 15, 0.6, 20, 0.8))
-sum(pod_system(1500, 700, 100, 10, 0.5, 15, 0.6, 20, 0.8))
+pod_system(P = 800, ETp = 500, Aw = 1000, A_1 = 0, a_1 = 0.5)
+pod_system(P = 800, ETp = 500, Aw = 800, A_1 = 200, a_1 = 0.5)
