@@ -17,17 +17,17 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 #### Flachdach (Metall, Glas)  
 def steep_roof(Area, P, ETp, Sp = 0.3):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Storage height (Sp) in roofs varies
     between 0.1 and 0.6 mm. Standard storage value for steep roof
     in general is 0.3 mm, in case of glass or metal cover use 0.6 mm
     '''  
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (Sp < 0.1 or Sp > 0.6):
         return("The value of storage height (Sp) is out of the range "
                "of validity for the equation (0.1 - 0.6 mm)")               
@@ -43,18 +43,18 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
     Q_ETP = Area*P*v / 1000    
     # pfractions = (a, g, v)
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -72,7 +72,7 @@ steep_roof(Area = 1000, P = 800, ETp = ETP_Thornthwaite)
 #### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
 def flat_roof(Area, P, ETp, Sp = 1.0):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Storage (Sp) in flat roofs varies between 0.6
     and 3 mm. Standard Sp-values are:
     Flat roof with rough cover = 1;
@@ -82,10 +82,10 @@ def flat_roof(Area, P, ETp, Sp = 1.0):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (Sp < 0.6 or Sp > 3):
         return("The value of storage height (Sp) is out of the range "
                "of validity for the equation (0.6 - 3 mm)")
@@ -102,18 +102,18 @@ def flat_roof(Area, P, ETp, Sp = 1.0):
     Q_ETP = Area*P*v / 1000    
     # pfractions = (a, g, v)
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -125,7 +125,7 @@ flat_roof(1000, 550, 450, 0.6)
 #%% Berechnungsansatz B.3.3: Gründach
 def green_roof(Area, P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Heigth (h) corresponds to the 
     installation heigth of the green roof (mm), kf stands for hydraulic
     conductivity (mm/h), WKmax corresponds to maximal water capacity (-)
@@ -135,10 +135,10 @@ def green_roof(Area, P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
     
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (h < 40 or h > 500):
         return("Installation heigth (h) is out of the range "
                "of validity for the equation (40 - 500 mm)")
@@ -163,18 +163,18 @@ def green_roof(Area, P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -185,17 +185,17 @@ green_roof(Area= 1000, P = 550, ETp= 450, h= 100)
 #%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
 def storage_roof(Area, P, ETp, Sp = 5):
     ''' Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Sp stands for storage heigth (Sp),
     which should be bigger than 3 mm and lower than 10 mm.
     Standard value for Sp = 5.
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (Sp < 3 or Sp > 10):
         return("The value of storage height (Sp) is out of the range "
                "of validity for the equation (3 - 10 mm)")
@@ -211,18 +211,18 @@ def storage_roof(Area, P, ETp, Sp = 5):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -235,7 +235,7 @@ storage_roof(Area = 1000, P = 550, ETp = 450)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
 def permeable_surface(Area, P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). FA corresponds to the joint ratio of
     the pavers or partially permable elements. The standard storage
     heigth (Sp) is 1 mm for FA = 4, or FA = 8. WKmax corresponds to 
@@ -246,10 +246,10 @@ def permeable_surface(Area, P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (FA < 2 or FA > 10):
         return("The the joint ratio (FA) is out of the range "
                "of validity for the equation (2 - 10 %)")
@@ -299,18 +299,18 @@ def permeable_surface(Area, P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -325,7 +325,7 @@ permeable_surface(1000, 650, 500, 4, 18)
 # (pore stones, seepage stones), gravel surface, gravel lawn
 def porous_surface(Area, P, ETp, Sp = 3.5, h = 100, kf = 180):
     ''' Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Sp stands for storage heigth (mm),
     h stands for installation heigth (mm), kf corresponds to hydraulic
     conductivity (mm/h). Standard values are:
@@ -333,10 +333,10 @@ def porous_surface(Area, P, ETp, Sp = 3.5, h = 100, kf = 180):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (Sp < 2.5 or Sp > 4.2):
         return("The value of storage height (Sp) is out of the range "
                "of validity for the equation (2.5 - 4.2 mm)")
@@ -362,18 +362,18 @@ def porous_surface(Area, P, ETp, Sp = 3.5, h = 100, kf = 180):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -385,7 +385,7 @@ porous_surface(Area=1000, P=1000, ETp=650, Sp=4, h=100, kf=180)
 # Lawn grid stones / paver stone grids
 def paver_stonegrid(Area, P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). FA corresponds to the joint ratio of
     the pavers or partially permable elements (FA standard value = 25).
     The standard storage heigth (Sp) is 1 mm. WKmax corresponds to the 
@@ -394,10 +394,10 @@ def paver_stonegrid(Area, P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (FA < 20 or FA > 30):
         return("The the joint ratio (FA) is out of the range "
                "of validity for the equation (20 - 30 %)")
@@ -423,18 +423,18 @@ def paver_stonegrid(Area, P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -447,7 +447,7 @@ paver_stonegrid(Area=1000, P=800, ETp=650)
 # gravel ground cover
 def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). h stands for installation heigth (mm),
     Sp stands for storage heigth (mm), kf corresponds to hydraulic
     conductivity (mm/h). Standard values are:
@@ -455,10 +455,10 @@ def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (h < 50 or h > 100):
         return("Installation heigth (h) is out of the range "
                "of validity for the equation (50 - 100 mm)")
@@ -483,18 +483,18 @@ def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -507,7 +507,7 @@ gravel_cover(Area = 1000, P = 1000, ETp = 650)
 # Drainage: pipe, channel, steep ditch
 def drainage(Area, P, ETp, drainage_type):
     '''Area corresponds to the surface of the element in m2,
-    P stands for precipititaion (mm/year). ETp corresponds to potential
+    P stands for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). drainge_type is a text input, the possible
     input options are:
     "pipe", "Pipe", "PIPE", "Rohr", "rohr", "ROHR", "channel","Channel",
@@ -544,18 +544,18 @@ def drainage(Area, P, ETp, drainage_type):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -568,7 +568,7 @@ drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "Pip3")
 # Surface infiltration
 def surf_infiltration(Area, P, ETp, kf, FAsf = "FAsf_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). kf stands for hydraulic 
     conductivity (mm/h). FAsf (%) stands for percentage of infiltration
     area. The standard value is calculated in terms of kf as:
@@ -576,10 +576,10 @@ def surf_infiltration(Area, P, ETp, kf, FAsf = "FAsf_standard"):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (kf < 325 or kf > 1100):
         return("Hydraulic conductivity (kf) is out of the range "
                "of validity for the equation (325 - 1100 mm/h)") 
@@ -599,18 +599,18 @@ def surf_infiltration(Area, P, ETp, kf, FAsf = "FAsf_standard"):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -622,7 +622,7 @@ surf_infiltration(Area = 1000, P = 800, ETp = 600, kf =500)
 # Infiltration swale
 def infilt_swale(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). kf stands for hydraulic 
     conductivity (mm/h). FAsm (%) stands for percentage of percolation
     area (swale). The standard value is calculated in terms of kf as:
@@ -630,10 +630,10 @@ def infilt_swale(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (kf < 14 or kf > 3600):
         return("Hydraulic conductivity (kf) is out of the range "
                "of validity for the equation (14 - 3600 mm/h)") 
@@ -654,18 +654,18 @@ def infilt_swale(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -677,7 +677,7 @@ infilt_swale(Area = 1000, P = 800, ETp = 700, kf = 500)
 # Swale-trench element
 def swale_trench(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). kf stands for hydraulic 
     conductivity (mm/h). FAsm (%) stands for percentage of percolation
     area (swale). The standard value is calculated in terms of kf as:
@@ -685,10 +685,10 @@ def swale_trench(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (kf < 3.6 or kf > 36):
         return("Hydraulic conductivity (kf) is out of the range "
                "of validity for the equation (3.6 - 36 mm/h)") 
@@ -709,18 +709,18 @@ def swale_trench(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -732,7 +732,7 @@ swale_trench(Area = 1000, P = 700, ETp = 500, kf = 10)
 # Swale-trench system
 def swale_trench_system(Area, P, ETp, qDr, kf, FAsm = "FAsm_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/year). ETp corresponds to potential
+    for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). qDr stands for the throttled discharge
     yield (l/(s*ha)), and kf stands for hydraulic conductivity (mm/h).
     FAsm stands for percentage of percolation area (%) calculated in
@@ -741,10 +741,10 @@ def swale_trench_system(Area, P, ETp, qDr, kf, FAsm = "FAsm_standard"):
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (qDr < 1 or qDr > 10):
         return("Throttled discharge yield (qDr) is out of the range "
                "of validity for the equation (1 - 10 l/(s*ha))")
@@ -769,18 +769,18 @@ def swale_trench_system(Area, P, ETp, qDr, kf, FAsm = "FAsm_standard"):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
@@ -795,16 +795,16 @@ def rainwater_usage(P, ETp, VSp, VBr, FAbw = 2, qBw = 60):
     connected, flow-effective area. VBr correspond to the available 
     water volume to use in relation to the connected, effective runoff
     area (mm/d). FAbw corresponds to proportion of irrigated area in 
-    relation to the connected area, effective runoff area (-).
-    qBw stands for Specific annual requirement for irrigation 
+    relation to the connected, effective runoff area (-).
+    qBw stands for specific annual requirement for irrigation 
     (l/(m^2*year))
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (VSp < 10 or VSp > 200):
         return("The Specific storage (VSp) is out of the range "
                "of validity for the equation (10 - 200 mm)")    
@@ -833,19 +833,31 @@ def rainwater_usage(P, ETp, VSp, VBr, FAbw = 2, qBw = 60):
         e = (0.4451 - 0.0003529*P - 0.00007728*ETp + 0.06821*np.log10(VSp)
              - 0.0002507*VBw + 0.2349*np.log10(VBr) + 0.0001738*Vnmin)
     a = max((1 - (v + e)), 0.0)
-    pfractions = (a, e, v)
-    return(pfractions)
+    g = 0.0
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    results = [{'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "e", 'Unit': "-", 'Value': e},
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(rainwater_usage(1500, 700, 100, 3, 2, 201))
-print(rainwater_usage(1500, 700, 100, 3, 2, 60))
-sum(rainwater_usage(1500, 700, 100, 3, 2, 60))
+rainwater_usage(P = 800, ETp = 500, VSp = 100, VBr = 2.5)
 
 #%% Berechnungsansatz B.4.6: Teichanlage mit Zufluss von befestigten Flächen
 # Pond system with inflow from paved areas
 def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
                A_4= 0, a_4= 0.0):
-    '''P stands for precipititaion (mm/year). ETp corresponds to 
+    '''P stands for precipititaion (mm/a). ETp corresponds to 
     potential evapotranspiration (mm/yr). Aw stands for pod surface (m2),
     A_i corresponds to the Area i, which directs its runoff to the 
     pond (m2), a_i corresonds to proportion of area i (0.0-1.0),
@@ -853,10 +865,10 @@ def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/year)")        
+               " for the equation (500 - 1700 mm/a)")        
     if (ETp < 450 or ETp > 700):
         return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/year)")
+               " range of validity for the equation (450 - 700 mm/a)")
     if (a_1 < 0.0 or a_1 > 1.0):
         return("Proportion of area (a_1), which directs its runoff to " 
                "the pond should be between 0.0 and 1.0")
@@ -883,18 +895,18 @@ def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
     Q_ETP = Area*P*v / 1000   
     results = [{'Name' : "Pod area (Aw)", 'Unit': "m2", 'Value': Aw},
                {'Name' : "Total area", 'Unit': "m2", 'Value': Area},
-               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "P", 'Unit': "mm/a", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETp},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
-               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
-               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
-               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
-               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
-               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
-               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+               {'Name' : "RD", 'Unit': "mm/a", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/a", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/a", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/a",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/a", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/a", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/a", 'Value': Q_ETP}]
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
