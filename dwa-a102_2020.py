@@ -5,9 +5,13 @@ Following new DWA-102 (Dec. 2020)
 
 @author: Edwin Echeverri
 """
+# install git
+# conda install pip
+# pip install git+https://github.com/woodcrafty/PyETo#egg=PyETo
 import numpy as np
 import pandas as pd
-
+import pyeto as pyeto
+from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 #%% Berechnungsansatz B.3.1: Steildach (alle Deckungsmaterialien),
 #### Flachdach (Metall, Glas)  
@@ -26,8 +30,7 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
                " range of validity for the equation (450 - 700 mm/year)")
     if (Sp < 0.1 or Sp > 0.6):
         return("The value of storage height (Sp) is out of the range "
-               "of validity for the equation (0.1 - 0.6 mm)")
-                
+               "of validity for the equation (0.1 - 0.6 mm)")               
     a = 0.9115 + 0.00007063*P - 0.000007498*ETp - 0.2063*np.log(Sp + 1)
     g = 0
     v = 1-a-g
@@ -39,35 +42,39 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
     Q_GWN = Area*P*g / 1000
     Q_ETP = Area*P*v / 1000    
     # pfractions = (a, g, v)
-    results = [{'Name' : "P", 'Unit': "mm/year", 'Value': P},
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
                {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
-               {'Name' : "Area", 'Unit': "m2", 'Value': Area},
                {'Name' : "a", 'Unit': "-", 'Value': a},
                {'Name' : "g", 'Unit': "-", 'Value': g},
                {'Name' : "v", 'Unit': "-", 'Value': v},
                {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
                {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
                {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
-               {'Name' : "Inflow / Zufluss", 'Unit': "m3/year", 'Value': inflow},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
                {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
                {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
                {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
-    return(pd.DataFrame(results))
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-steep_roof(1000, 800, 500)
-steep_roof(499, 450, 0.3)
-steep_roof(600, 440, 0.3)
-steep_roof(550, 450, 0.01)
-steep_roof(550, 450, 0.3)
-print(steep_roof(550, 450, 0.3))
-sum(steep_roof(550, 450, 0.3))
+steep_roof(Area = 1000, P = 800, ETp = 500)
+
+mmdlh = pyeto.monthly_mean_daylight_hours(pyeto.deg2rad(52.38), 2014)
+monthly_t = [3.1, 3.5, 5.0, 6.7, 9.3, 12.1, 14.3, 14.1, 11.8, 8.9, 5.5, 3.8]
+ETP_Thornthwaite = sum(pyeto.thornthwaite(monthly_t, mmdlh))
+
+steep_roof(Area = 1000, P = 800, ETp = ETP_Thornthwaite)
 
 #%% Berechnungsansatz B.3.2: Flachdach (Dachpappe, Faserzement, Kies),
 #### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
-def flat_roof(P, ETp, Sp = 1.0):
-    '''storage (Sp) in flat roofs varies between 0.6 and 3 mm.
-    Standard Sp-values are:
+def flat_roof(Area, P, ETp, Sp = 1.0):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). Storage (Sp) in flat roofs varies between 0.6
+    and 3 mm. Standard Sp-values are:
     Flat roof with rough cover = 1;
     Flat roof with gravel cover = 2;
     Flat roof with asphalt or jointless concrete cover = 2.5;
@@ -86,20 +93,44 @@ def flat_roof(P, ETp, Sp = 1.0):
     a = 0.8658 + 0.0001659*P - 0.00009945*ETp - 0.1542*np.log(Sp + 1)
     g = 0
     v = 1-a-g
-    pfractions = (a, g, v)
-    return(pfractions)
-
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000    
+    # pfractions = (a, g, v)
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 # Test
-print(flat_roof(450, 450, 0.3))
-print(flat_roof(550, 450, 0.6))
-sum(flat_roof(550, 450, 0.6))
+flat_roof(1000, 450, 450, 0.3)
+flat_roof(1000, 550, 450, 0.6)
+# sum(flat_roof(550, 450, 0.6))
 
 #%% Berechnungsansatz B.3.3: Gründach
-def green_roof(P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
-    '''heigth (h) corresponds to the installation heigth of the green 
-    roof (mm), kf stands for hydraulic conductivity (mm/h),
-    WKmax corresponds to maximal water capacity (-) and WP to wilting 
-    point (-). Standard value for difference (WKmax - WP) is 0.5
+def green_roof(Area, P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). Heigth (h) corresponds to the 
+    installation heigth of the green roof (mm), kf stands for hydraulic
+    conductivity (mm/h), WKmax corresponds to maximal water capacity (-)
+    and WP to wilting point (-). Standard value for the difference 
+    (WKmax - WP) is 0.5
     '''
     
     if (P < 500 or P > 1700):
@@ -124,18 +155,40 @@ def green_roof(P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
          - 0.1214*np.log((WKmax - WP)*h))
     g = 0
     v = 1-a-g
-    pfractions = (a, g, v)
-    return(pfractions)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(green_roof(550, 450, 100, 70, 0.9, 0.4))
-green_roof(550, 450, 100)
-sum(green_roof(550, 450, 100, 70, 0.9, 0.4))
+green_roof(Area= 1000, P = 550, ETp= 450, h= 100)
 
 #%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
-def storage_roof(P, ETp, Sp = 5):
-    ''' function for roofs with a storage heigth (Sp) desing bigger 
-    than 3 mm and lower than 10 mm. Standard value for Sp = 5.
+def storage_roof(Area, P, ETp, Sp = 5):
+    ''' Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). Sp stands for storage heigth (Sp),
+    which should be bigger than 3 mm and lower than 10 mm.
+    Standard value for Sp = 5.
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -150,24 +203,46 @@ def storage_roof(P, ETp, Sp = 5):
     a = 0.9231 + 0.000254*P - 0.0003226*ETp - 0.1472*np.log(Sp+1)
     g = 0
     v = 1-a-g
-    pfractions = (a, g, v)
-    return(pfractions)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(storage_roof(550, 450, 5))
-sum(storage_roof(550, 450, 5))
+storage_roof(Area = 1000, P = 550, ETp = 450)
 
 #%% Berechnungsansatz B.3.5 & B.3.6: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 2 % bis 10 %)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
-def permeable_surface(P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
-    '''FA corresponds to the joint ratio of the pavers or partially 
-    permable elements. The standard storage heigth (Sp) is 1 mm for
-    FA = 4, or FA = 8. WKmax corresponds to maximal water capacity (-)
-    and WP to wilting point (-). Standard value for difference 
-    (WKmax - WP) is 0.15. kf stands for hydraulic conductivity (mm/h), 
-    standard values are 18 mm/h, and 36 mm/h for FA = 4, and FA = 8, 
-    repectively.    
+def permeable_surface(Area, P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). FA corresponds to the joint ratio of
+    the pavers or partially permable elements. The standard storage
+    heigth (Sp) is 1 mm for FA = 4, or FA = 8. WKmax corresponds to 
+    maximal water capacity (-) and WP to wilting point (-).
+    Standard value for difference (WKmax - WP) is 0.15. kf stands for
+    hydraulic conductivity (mm/h), standard values are 18 mm/h,
+    and 36 mm/h for FA = 4, and FA = 8, repectively.    
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -201,8 +276,6 @@ def permeable_surface(P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
              + 0.1583*np.log(1 + Sp))
         # To fullfill the conservation mass (a+g+v=1). My decision is to apply:
         g = 1-a-v
-        pfractions = (a, g, v)
-        return(pfractions)
 
 ### Berechnungsansatz B.3.6: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 6 % bis 10 %)
@@ -217,25 +290,46 @@ def permeable_surface(P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
         v = (0.9012 - 0.1325*np.log(P) + 0.00006661*ETp + 0.002302*FA
              + 0.1489*np.log(1 + Sp))
         g = 1 - (a + v)
-        pfractions = (a, g, v)
-        return(pfractions)
+
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
     
 # Test
-permeable_surface(650, 500, 8, 36)
-permeable_surface(650, 500, 4, 18)   
-print(permeable_surface(650, 500, 4, 18))
-sum(permeable_surface(650, 500, 4, 18))
-print(permeable_surface(650, 500, 8, 18))
-sum(permeable_surface(650, 500, 8, 18))
+permeable_surface(Area = 1000, P = 650, ETp = 500, FA = 8, kf = 36)
+permeable_surface(1000, 650, 500, 4, 18)   
 
 #%% Berechnungsansatz B.3.7: Teildurchlässige Flächenbeläge
 ### (Porensteine, Sickersteine), Kiesbelag, Schotterrasen
 # Partially permeable surfaces
 # (pore stones, seepage stones), gravel surface, gravel lawn
-def porous_surface(P, ETp, Sp = 3.5, h = 100, kf = 180):
-    '''Standard values are:
-    storage heigth (Sp) = 3.5 mm
-    installation heigth (h) of the surface = 100 mm
+def porous_surface(Area, P, ETp, Sp = 3.5, h = 100, kf = 180):
+    ''' Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). Sp stands for storage heigth (mm),
+    h stands for installation heigth (mm), kf corresponds to hydraulic
+    conductivity (mm/h). Standard values are:
+    Sp = 3.5 mm, h = 100 mm, kf = 180
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -260,22 +354,43 @@ def porous_surface(P, ETp, Sp = 3.5, h = 100, kf = 180):
     v = (0.2111 - 0.2544*np.log(P) + 0.2073*np.log(ETp)
          + 0.0006249*Sp + 0.123*np.log(h) - 0.000002806*kf)
     g = max((1 - (a + v)), 0.0)
-    pfractions = (a, g, v)
-    return(pfractions)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(porous_surface(1000, 650, 4, 100, 180))
-sum(porous_surface(1000, 650, 4, 100, 180))
+porous_surface(Area=1000, P=1000, ETp=650, Sp=4, h=100, kf=180)
 
 #%% Berechnungsansatz B.3.8: Rasengittersteine
 # Lawn grid stones / paver stone grids
-def paver_stonegrid(P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
-    '''FA corresponds to the joint ratio of the pavers or partially
-    permable elements, and its standard value is 25. The standard 
-    storage heigth (Sp) is 1 mm. WKmax corresponds to maximal water 
-    capacity (-) and WP to wilting point (-). Standard value for 
-    difference (WKmax - WP) is 0.15. kf stands for hydraulic 
-    conductivity (mm/h)
+def paver_stonegrid(Area, P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). FA corresponds to the joint ratio of
+    the pavers or partially permable elements (FA standard value = 25).
+    The standard storage heigth (Sp) is 1 mm. WKmax corresponds to the 
+    maximal water capacity (-) and WP to wilting point (-). Standard value
+    for the difference (WKmax - WP) is 0.15.
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -299,21 +414,44 @@ def paver_stonegrid(P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
     #      - 0.09913*np.log(1 + Sp) + 0.05222*(WKmax - WP))
     v = (1.106 - 0.1625*np.log(P) + 0.0001282*ETp
          + 0.1131*np.log(1 + Sp) + 0.2848*(WKmax - WP))
-    g = 1 - (a + v)
-    pfractions = (a, g, v)
-    return(pfractions)
+    g = max((1 - (a + v)), 0.0)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(paver_stonegrid(1000, 650, 25, 1, 0.30, 0.15))
-sum(paver_stonegrid(1000, 650, 25, 1, 0.30, 0.15))
+paver_stonegrid(Area=1000, P=800, ETp=650)
 
 #%% Berechnungsansatz B.3.9: Wassergebundene Decke
 # Wassergebundene Decke, offiziell Deckschicht ohne Bindemittel (Kürzel: DoB)
 # gravel ground cover
-def gravel_cover(P, ETp, h = 100, Sp = 3.5, kf = 1.8):
-    '''Standard values are:
-    installation heigth (h) = 100 m
-    storage heigth (Sp) = 3.5 mm
+def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
+    ''' Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). h stands for installation heigth (mm),
+    Sp stands for storage heigth (mm), kf corresponds to hydraulic
+    conductivity (mm/h). Standard values are:
+    h = 100 mm, Sp = 3.5 mm, kf = 180
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -332,24 +470,43 @@ def gravel_cover(P, ETp, h = 100, Sp = 3.5, kf = 1.8):
                "of validity for the equation (0.72 - 10 mm/h)")      
     
     a = 0.00004517*P - 0.03454*np.log(Sp) + (0.1958/(0.2873 + kf))
-    g = (0.19761*np.log(P) - 0.000506*ETp + 0.016372*Sp - 0.001618*h
-         - 0.327742*np.exp(0.346808/kf))
+    # g = (0.19761*np.log(P) - 0.000506*ETp + 0.016372*Sp - 0.001618*h
+    #      - 0.327742*np.exp(0.346808/kf))
     v = (0.2111 - 0.2544*np.log(P) + 0.2073*np.log(ETp)
          + 0.0006249*Sp + 0.123*np.log(h) - 0.000002806*kf)
-    g = 1 - (a + v)
-    pfractions = (a, g, v)
-    return(pfractions)
+    g = max((1 - (a + v)), 0.0)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(gravel_cover(1000, 650, 100, 3.5, 1.8))
-sum(gravel_cover(1000, 650, 100, 3.5, 1.8))
+gravel_cover(Area = 1000, P = 1000, ETp = 650)
 
 #%% Berechnungsansatz B.4 Aufteilungswerte und Berechnungsansätze für Anlagen
 # Ableitung: Rohr, Rinne, steiler Graben
 # Drainage: pipe, channel, steep ditch
 def drainage(drainage_type):
-    '''
-    draingetype is a text input, the possible input options are:
+    '''drainge_type is a text input, the possible input options are:
     "pipe", "Pipe", "PIPE", "Rohr", "rohr", "ROHR", "channel","Channel",
     "CHANNEL", "Rinne", "rinne", "RINNE", "steep ditch", "Steep Ditch",
     "STEEP DITCH", "steiler graben","steiler Graben", "STEILER GRABEN",
@@ -382,11 +539,13 @@ print(drainage("wrong name as test"))
 
 #%% Berechnungsansatz B.4.1: Flächenversickerung
 # Surface infiltration
-def surf_infiltration(P, ETp, kf, FAsf = "FAsf_standard"):
-    '''FAsf (%) stands for percentage of infiltration area.
-    The standard value is calculated in terms of the hydraulic 
-    conductivity (mm/h) as:
-    94741*kf*exp(-1.195)
+def surf_infiltration(Area, P, ETp, kf, FAsf = "FAsf_standard"):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). kf stands for hydraulic 
+    conductivity (mm/h). FAsf (%) stands for percentage of infiltration
+    area. The standard value is calculated in terms of kf as:
+    FAsf_standard = 94741*kf*exp(-1.195)
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -404,24 +563,43 @@ def surf_infiltration(P, ETp, kf, FAsf = "FAsf_standard"):
     # g = (0.6207904 + 0.0899322*np.log(P) - 0.0001152*ETp
     #      - 0.0719723*np.log(FAsf))
     v = 0.3999 - 0.09317*np.log(P) + 0.00009746*ETp + 0.07474*np.log(FAsf)
-    g = max((1 - (a + v)), 0.0 )
-    pfractions = (a, g, v)
-    return(pfractions)
+    g = max((1 - (a + v)), 0.0)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(surf_infiltration(1500, 700, 500))
-print(surf_infiltration(1500, 700, 500, 56.4))
-print(surf_infiltration(1500, 700, 500, 50))
-sum(surf_infiltration(1500, 700, 500, 56.4))
-sum(surf_infiltration(1500, 700, 500, 50))
+surf_infiltration(Area = 1000, P = 800, ETp = 600, kf =500)
 
 #%% Berechnungsansatz B.4.2: Versickerungsmulde
 # Infiltration swale
-def infilt_swale(P, ETp, kf, FAsm = "FAsm_standard"):
-    '''FAsm (%) stands for percentage of percolation area (swale). The 
-    standard value is calculated in terms of the hydraulic 
-    conductivity (mm/h) as:
-    42.323*kf*exp(-0.314)
+def infilt_swale(Area, P, ETp, kf, FAsm = "FAsm_standard"):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). kf stands for hydraulic 
+    conductivity (mm/h). FAsm (%) stands for percentage of percolation
+    area (swale). The standard value is calculated in terms of kf as:
+    FAsm_standard = 42.323*kf*exp(-0.314)
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -436,27 +614,47 @@ def infilt_swale(P, ETp, kf, FAsm = "FAsm_standard"):
         FAsm = 42.323*kf**(-0.314)       
     
     g = (0.8608 + 0.02385*np.log(P) - 0.00005331*ETp - 0.002827*FAsm
-         - 0.000002493*kf + 0.0009514*np.log(kf/FAsm))
+          - 0.000002493*kf + 0.0009514*np.log(kf/FAsm))
     v = 0.000008562*ETp + (2.611/(P-64.35))*FAsm**0.9425 - 0.000001211*kf
     # a = 1 - g - v
     # To force positive values or zero
-    a = max((1 - g - v), 0.0)
-    pfractions = (a, g, v)
-    return(pfractions)
+    a = max((1 - (g + v)), 0.0)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(infilt_swale(1700, 700, 5000))
-print(infilt_swale(1700, 700, 500, 6))
-print(infilt_swale(1700, 700, 500))
-sum(infilt_swale(1700, 700, 500))
+infilt_swale(Area = 1000, P = 800, ETp = 700, kf = 500)
 
 #%% Berechnungsansatz B.4.3: Mulde-Rigolen-Elemente
 # Swale-trench element
-def swale_trench(P, ETp, kf, FAsm = "FAsm_standard"):
-    '''FAsm (%) stands for percentage of percolation area (swale). The
-    standard value is calculated in terms of the hydraulic
-    conductivity (mm/h) as:
-    21.86*kf*exp(-0.348)
+def swale_trench(Area, P, ETp, kf, FAsm = "FAsm_standard"):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). kf stands for hydraulic 
+    conductivity (mm/h). FAsm (%) stands for percentage of percolation
+    area (swale). The standard value is calculated in terms of kf as:
+    FAsm_standard = 21.86*kf*exp(-0.348)
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -472,27 +670,47 @@ def swale_trench(P, ETp, kf, FAsm = "FAsm_standard"):
         
     a = (-0.03867 + 0.007684*np.log(P) + 0.000003201*FAsm + 0.0002564*kf
          - 0.0001187*FAsm*kf + 0.004161*np.log(kf/FAsm))
-    g = (0.8803 + 0.01866*np.log(P) - 0.00004867*ETp
-         - 0.001997*FAsm + 0.0002365*kf)
+    # g = (0.8803 + 0.01866*np.log(P) - 0.00004867*ETp
+    #      - 0.001997*FAsm + 0.0002365*kf)
     v = 0.000008879*ETp + (2.528/(P-81.65))*FAsm**0.9496 - 0.00007768*kf
     g = max((1 - (a + v)), 0.0)
-    pfractions = (a, g, v)
-    return(pfractions)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(swale_trench(1500, 700, 50))
-print(swale_trench(1500, 700, 12, 6))
-print(swale_trench(1500, 700, 12))
-print(swale_trench(500, 700, 3.6))
-sum(swale_trench(1500, 700, 12))
+swale_trench(Area = 1000, P = 700, ETp = 500, kf = 10)
 
 #%% Berechnungsansatz B.4.4: Mulden-Rigolen-System
 # Swale-trench system
-def swale_trench_system(P, ETp, qDr, kf, FAsm = "FAsm_standard"):
-    '''FAsm stands for percentage of percolation area (%), and qDr for
-    Throttled discharge yield (l/(s*ha)). The standard BAsm value is
-    calculated in terms of the hydraulic conductivity kf (mm/h) and qDr as:
-    11.79 - 3.14*LN(qDR) - 0.18594*kf
+def swale_trench_system(Area, P, ETp, qDr, kf, FAsm = "FAsm_standard"):
+    '''Area corresponds to the surface of the element in m2, P stands
+    for precipititaion (mm/year). ETp corresponds to potential
+    evapotranspiration (mm/yr). qDr stands for the throttled discharge
+    yield (l/(s*ha)), and kf stands for hydraulic conductivity (mm/h).
+    FAsm stands for percentage of percolation area (%) calculated in
+    terms of the hydraulic conductivity kf (mm/h) and qDr as:
+    FAsm_standard = 11.79 - 3.14*LN(qDR) - 0.18594*kf
     '''
     if (P < 500 or P > 1700):
         return("Precipitation value is out of the range of validity"
@@ -516,15 +734,32 @@ def swale_trench_system(P, ETp, qDr, kf, FAsm = "FAsm_standard"):
     v = (0.1428 - 0.02661*np.log(P) + 0.00005668*ETp + 0.0288*np.log(FAsm)
           - 0.0001825*qDr - 0.01823*np.log(kf + 1))
     g = max((1 - (a + v)), 0.0)
-    pfractions = (a, g, v)
-    return(pfractions)
+    RD = P*a
+    GWN = P*g
+    ETP = P*v
+    inflow = Area*P / 1000
+    Q_RD = Area*P*a / 1000
+    Q_GWN = Area*P*g / 1000
+    Q_ETP = Area*P*v / 1000   
+    results = [{'Name' : "Area", 'Unit': "m2", 'Value': Area},
+               {'Name' : "P", 'Unit': "mm/year", 'Value': P,},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETp},
+               {'Name' : "a", 'Unit': "-", 'Value': a},
+               {'Name' : "g", 'Unit': "-", 'Value': g},
+               {'Name' : "v", 'Unit': "-", 'Value': v},
+               {'Name' : "RD", 'Unit': "mm/year", 'Value': RD},
+               {'Name' : "GWN", 'Unit': "mm/year", 'Value': GWN},
+               {'Name' : "ETp", 'Unit': "mm/year", 'Value': ETP},
+               {'Name' : "Inflow", 'Unit': "m3/year",'Value': inflow},
+               {'Name' : "RD flow", 'Unit': "m3/year", 'Value': Q_RD},
+               {'Name' : "GWN flow", 'Unit': "m3/year", 'Value': Q_GWN},
+               {'Name' : "ETP flow", 'Unit': "m3/year", 'Value': Q_ETP}]
+    results = pd.DataFrame(results)
+    results.Value = results.Value.round(3)
+    return(results)
 
 # Test
-print(swale_trench_system(1500, 700, 6, 2))
-print(swale_trench_system(1500, 700, 6, 2, 5.8))
-print(swale_trench_system(500, 700, 6, 1, 0.4))
-print(swale_trench_system(1700, 450, 6, 2))
-sum(swale_trench_system(1500, 700, 6, 2))
+swale_trench_system(Area = 1000, P = 800, ETp = 500, qDr = 6, kf = 2)
 
 #%% Berechnungsansatz B.4.5: Regenwassernutzung
 # Rainwater usage
