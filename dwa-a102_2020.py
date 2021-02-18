@@ -13,6 +13,9 @@ import pandas as pd
 import pyeto as pyeto
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
+
+from check import *
+from coefficients import *
 #%% Berechnungsansatz B.3.1: Steildach (alle Deckungsmaterialien),
 #### Flachdach (Metall, Glas)  
 def steep_roof(Area, P, ETp, Sp = 0.3):
@@ -22,16 +25,12 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
     between 0.1 and 0.6 mm. Standard storage value for steep roof
     in general is 0.3 mm, in case of glass or metal cover use 0.6 mm
     '''  
-    if (P < 500 or P > 1700):
-        return("Precipitation value is out of the range of validity"
-               " for the equation (500 - 1700 mm/a)")        
-    if (ETp < 450 or ETp > 700):
-        return("The value of potential evapotranspiration is out of the"
-               " range of validity for the equation (450 - 700 mm/a)")
-    if (Sp < 0.1 or Sp > 0.6):
-        return("The value of storage height (Sp) is out of the range "
-               "of validity for the equation (0.1 - 0.6 mm)")               
-    a = 0.9115 + 0.00007063*P - 0.000007498*ETp - 0.2063*np.log(Sp + 1)
+    # check physical ranges from input values
+    precipitation(P)
+    evapoTrans(ETp)
+    storageHeight(Sp)
+    # calculate a coefficient              
+    a = a_steepRoof(P, ETp, Sp)
     g = 0
     v = 1-a-g
     RD = P*a
@@ -58,9 +57,9 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
-
+#%%
 # Test
-steep_roof(Area = 1000, P = 800, ETp = 500)
+r = steep_roof(Area = 1000, P = 499, ETp = 500)
 
 mmdlh = pyeto.monthly_mean_daylight_hours(pyeto.deg2rad(52.38), 2014)
 monthly_t = [3.1, 3.5, 5.0, 6.7, 9.3, 12.1, 14.3, 14.1, 11.8, 8.9, 5.5, 3.8]
