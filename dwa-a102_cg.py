@@ -48,9 +48,9 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
     df : DataFrame 
     '''  
     # check physical ranges from input values
-    precipitation(P)
-    evapoTrans(ETp)
-    storageHeight(Sp)
+    validRange(P, 'p')
+    validRange(ETp, 'Etp')
+    validRange(Sp, 'Sp')
     
     # calculate a coefficient          
     a = a_steepRoof(P, ETp, Sp)
@@ -83,7 +83,7 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
 
 
 if __name__ == "__main__":
-    r = steep_roof(Area = 1000, P = 501, ETp = 500)
+    r = steep_roof(Area=1000, P=550, ETp=500)
     mmdlh = pyeto.monthly_mean_daylight_hours(pyeto.deg2rad(52.38), 2014)
     monthly_t = [3.1, 3.5, 5.0, 6.7, 9.3, 12.1, 14.3, 14.1, 11.8, 8.9, 5.5, 3.8]
     ETP_Thornthwaite = sum(pyeto.thornthwaite(monthly_t, mmdlh))
