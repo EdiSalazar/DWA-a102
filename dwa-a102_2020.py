@@ -15,7 +15,7 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 #%% Berechnungsansatz B.3.1: Steildach (alle Deckungsmaterialien),
 #### Flachdach (Metall, Glas)  
-def steep_roof(Area, P, ETp, Sp = 0.3):
+def steep_roof(Area, P, ETp, Sp=0.3):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Storage height (Sp) in roofs varies
@@ -60,17 +60,17 @@ def steep_roof(Area, P, ETp, Sp = 0.3):
     return(results)
 
 # Test
-steep_roof(Area = 1000, P = 800, ETp = 500)
+steep_roof(Area=1000, P=800, ETp=500)
 
 mmdlh = pyeto.monthly_mean_daylight_hours(pyeto.deg2rad(52.38), 2014)
 monthly_t = [3.1, 3.5, 5.0, 6.7, 9.3, 12.1, 14.3, 14.1, 11.8, 8.9, 5.5, 3.8]
 ETP_Thornthwaite = sum(pyeto.thornthwaite(monthly_t, mmdlh))
 
-steep_roof(Area = 1000, P = 800, ETp = ETP_Thornthwaite)
+steep_roof(Area=1000, P=800, ETp=ETP_Thornthwaite)
 
 #%% Berechnungsansatz B.3.2: Flachdach (Dachpappe, Faserzement, Kies),
 #### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
-def flat_roof(Area, P, ETp, Sp = 1.0):
+def flat_roof(Area, P, ETp, Sp=1.0):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Storage (Sp) in flat roofs varies between 0.6
@@ -123,7 +123,7 @@ flat_roof(1000, 550, 450, 0.6)
 # sum(flat_roof(550, 450, 0.6))
 
 #%% Berechnungsansatz B.3.3: Gründach
-def green_roof(Area, P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
+def green_roof(Area, P, ETp, h, kf=70, WKmax_WP=0.5):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Heigth (h) corresponds to the 
@@ -180,10 +180,10 @@ def green_roof(Area, P, ETp, h, kf = 70, WKmax = 0.55, WP = 0.05):
     return(results)
 
 # Test
-green_roof(Area= 1000, P = 550, ETp= 450, h= 100)
+green_roof(Area= 1000, P=550, ETp=450, h=100)
 
 #%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
-def storage_roof(Area, P, ETp, Sp = 5):
+def storage_roof(Area, P, ETp, Sp=5):
     ''' Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Sp stands for storage heigth (Sp),
@@ -228,12 +228,12 @@ def storage_roof(Area, P, ETp, Sp = 5):
     return(results)
 
 # Test
-storage_roof(Area = 1000, P = 550, ETp = 450)
+storage_roof(Area=1000, P=550, ETp=450)
 
 #%% Berechnungsansatz B.3.5 & B.3.6: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 2 % bis 10 %)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
-def permeable_surface(Area, P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
+def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax=0.35, WP=0.2):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). FA corresponds to the joint ratio of
@@ -316,14 +316,14 @@ def permeable_surface(Area, P, ETp, FA, kf, Sp = 1, WKmax = 0.35, WP = 0.2):
     return(results)
     
 # Test
-permeable_surface(Area = 1000, P = 650, ETp = 500, FA = 8, kf = 36)
+permeable_surface(Area=1000, P=650, ETp=500, FA=8, kf=36)
 permeable_surface(1000, 650, 500, 4, 18)   
 
 #%% Berechnungsansatz B.3.7: Teildurchlässige Flächenbeläge
 ### (Porensteine, Sickersteine), Kiesbelag, Schotterrasen
 # Partially permeable surfaces
 # (pore stones, seepage stones), gravel surface, gravel lawn
-def porous_surface(Area, P, ETp, Sp = 3.5, h = 100, kf = 180):
+def porous_surface(Area, P, ETp, Sp=3.5, h=100, kf=180):
     ''' Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). Sp stands for storage heigth (mm),
@@ -383,7 +383,7 @@ porous_surface(Area=1000, P=1000, ETp=650, Sp=4, h=100, kf=180)
 
 #%% Berechnungsansatz B.3.8: Rasengittersteine
 # Lawn grid stones / paver stone grids
-def paver_stonegrid(Area, P, ETp, FA = 25, Sp = 1, WKmax = 0.35, WP = 0.2):
+def paver_stonegrid(Area, P, ETp, FA=25, Sp=1, WKmax_WP=0.15):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). FA corresponds to the joint ratio of
@@ -445,7 +445,7 @@ paver_stonegrid(Area=1000, P=800, ETp=650)
 #%% Berechnungsansatz B.3.9: Wassergebundene Decke
 # Wassergebundene Decke, offiziell Deckschicht ohne Bindemittel (Kürzel: DoB)
 # gravel ground cover
-def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
+def gravel_cover(Area, P, ETp, h=100, Sp=3.5, kf=1.8):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). h stands for installation heigth (mm),
@@ -500,7 +500,7 @@ def gravel_cover(Area, P, ETp, h = 100, Sp = 3.5, kf = 1.8):
     return(results)
 
 # Test
-gravel_cover(Area = 1000, P = 1000, ETp = 650)
+gravel_cover(Area=1000, P=1000, ETp=650)
 
 #%% Berechnungsansatz B.4 Aufteilungswerte und Berechnungsansätze für Anlagen
 # Ableitung: Rohr, Rinne, steiler Graben
@@ -526,7 +526,8 @@ def drainage(Area, P, ETp, drainage_type):
                     "Flache Gräben mit Bewuchs", "Gräben mit Bewuchs")
     #  The input could be change to a numeric value, like 1 = Rohr, Rinne..
     #  and 2 = Flache Gräben mit Bewuchs.
-    if ((drainage_type in drainages) or (drainage_type in veg_drainage))  == False:
+    if ((drainage_type in drainages) or
+        (drainage_type in veg_drainage))  == False:
         return ("Wrong input as drinage-type")
     if (drainage_type in drainages) == True:   
         a = 1
@@ -560,13 +561,13 @@ def drainage(Area, P, ETp, drainage_type):
     results.Value = results.Value.round(3)
     return(results)
 # Test
-drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "ditch with vegetation")
-drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "Rohr")
-drainage(Area = 1000, P = 800, ETp = 500, drainage_type = "Pip3")
+drainage(Area=1000, P=800, ETp=500, drainage_type="ditch with vegetation")
+drainage(Area=1000, P=800, ETp=500, drainage_type="Rohr")
+drainage(Area=1000, P=800, ETp=500, drainage_type="Pip3")
 
 #%% Berechnungsansatz B.4.1: Flächenversickerung
 # Surface infiltration
-def surf_infiltration(Area, P, ETp, kf, FAsf = "FAsf_standard"):
+def surf_infiltration(Area, P, ETp, kf, FAsf="FAsf_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). kf stands for hydraulic 
@@ -616,11 +617,11 @@ def surf_infiltration(Area, P, ETp, kf, FAsf = "FAsf_standard"):
     return(results)
 
 # Test
-surf_infiltration(Area = 1000, P = 800, ETp = 600, kf =500)
+surf_infiltration(Area=1000, P=800, ETp=600, kf=500)
 
 #%% Berechnungsansatz B.4.2: Versickerungsmulde
 # Infiltration swale
-def infilt_swale(Area, P, ETp, kf, FAsm = "FAsm_standard"):
+def infilt_swale(Area, P, ETp, kf, FAsm="FAsm_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). kf stands for hydraulic 
@@ -671,11 +672,11 @@ def infilt_swale(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     return(results)
 
 # Test
-infilt_swale(Area = 1000, P = 800, ETp = 700, kf = 500)
+infilt_swale(Area=1000, P=800, ETp=700, kf=500)
 
 #%% Berechnungsansatz B.4.3: Mulde-Rigolen-Elemente
 # Swale-trench element
-def swale_trench(Area, P, ETp, kf, FAsm = "FAsm_standard"):
+def swale_trench(Area, P, ETp, kf, FAsm="FAsm_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). kf stands for hydraulic 
@@ -726,11 +727,11 @@ def swale_trench(Area, P, ETp, kf, FAsm = "FAsm_standard"):
     return(results)
 
 # Test
-swale_trench(Area = 1000, P = 700, ETp = 500, kf = 10)
+swale_trench(Area=1000, P=700, ETp=500, kf=10)
 
 #%% Berechnungsansatz B.4.4: Mulden-Rigolen-System
 # Swale-trench system
-def swale_trench_system(Area, P, ETp, qDr, kf, FAsm = "FAsm_standard"):
+def swale_trench_system(Area, P, ETp, qDr, kf, FAsm="FAsm_standard"):
     '''Area corresponds to the surface of the element in m2, P stands
     for precipititaion (mm/a). ETp corresponds to potential
     evapotranspiration (mm/yr). qDr stands for the throttled discharge
@@ -786,11 +787,11 @@ def swale_trench_system(Area, P, ETp, qDr, kf, FAsm = "FAsm_standard"):
     return(results)
 
 # Test
-swale_trench_system(Area = 1000, P = 800, ETp = 500, qDr = 6, kf = 2)
+swale_trench_system(Area=1000, P=800, ETp=500, qDr=6, kf=2)
 
 #%% Berechnungsansatz B.4.5: Regenwassernutzung
 # Rainwater usage
-def rainwater_usage(P, ETp, VSp, VBr, FAbw = 2, qBw = 60):
+def rainwater_usage(P, ETp, VSp, VBr, FAbw=2, qBw=60):
     '''VSp stands for Specific storage volume (mm) in relation to the 
     connected, flow-effective area. VBr correspond to the available 
     water volume to use in relation to the connected, effective runoff
@@ -851,7 +852,7 @@ def rainwater_usage(P, ETp, VSp, VBr, FAbw = 2, qBw = 60):
     return(results)
 
 # Test
-rainwater_usage(P = 800, ETp = 500, VSp = 100, VBr = 2.5)
+rainwater_usage(P=800, ETp=500, VSp=100, VBr=2.5)
 
 #%% Berechnungsansatz B.4.6: Teichanlage mit Zufluss von befestigten Flächen
 # Pond system with inflow from paved areas
@@ -912,5 +913,5 @@ def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
     return(results)
 
 # Test
-pod_system(P = 800, ETp = 500, Aw = 1000, A_1 = 0, a_1 = 0.5)
-pod_system(P = 800, ETp = 500, Aw = 800, A_1 = 200, a_1 = 0.5)
+pod_system(P=800, ETp=500, Aw=1000, A_1=0, a_1=0.5)
+pod_system(P=800, ETp=500, Aw=800, A_1=200, a_1=0.5)
