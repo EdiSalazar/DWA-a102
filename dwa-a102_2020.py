@@ -19,7 +19,7 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 #### Flachdach (Metall, Glas)  
 def roof(Area, P, ETp, Sp=0.3):
     '''
-    Calculates water balance parameters for steep roofs (all materials)
+    Calculates water balance components for steep roofs (all materials)
     or flat roofs made with smooth materials (e.g. glass, metal)
     
     Parameters
@@ -95,7 +95,7 @@ roof(Area=1000, P=800, ETp=ETP_Thornthwaite)
 #### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
 def flat_roof(Area, P, ETp, Sp=1.0):
     '''
-    Calculates water balance parameters for flat roofs
+    Calculates water balance components for flat roofs
     
     Parameters
     ----------
@@ -168,7 +168,7 @@ flat_roof(1000, 550, 450, 0.6)
 #%% Berechnungsansatz B.3.3: Gründach
 def green_roof(Area, P, ETp, h, kf=70, WKmax_WP=0.5):
     '''
-    Calculates water balance parameters for green roofs
+    Calculates water balance components for green roofs
     
     Parameters
     ----------
@@ -249,7 +249,7 @@ green_roof(Area= 1000, P=550, ETp=450, h=100)
 #%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
 def storage_roof(Area, P, ETp, Sp=5):
     '''
-    Calculates water balance parameters for storage roofs
+    Calculates water balance components for storage roofs
     
     Parameters
     ----------
@@ -318,7 +318,7 @@ storage_roof(Area=1000, P=550, ETp=450)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
 def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax_WP=0.15):
     '''
-    Calculates water balance parameters for permeable surfaces
+    Calculates water balance components for permeable surfaces
     
     Parameters
     ----------
@@ -425,13 +425,49 @@ permeable_surface(1000, 650, 500, 4, 18)
 # Partially permeable surfaces
 # (pore stones, seepage stones), gravel surface, gravel lawn
 def porous_surface(Area, P, ETp, Sp=3.5, h=100, kf=180):
-    ''' Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). Sp stands for storage heigth (mm),
-    h stands for installation heigth (mm), kf corresponds to hydraulic
-    conductivity (mm/h). Standard values are:
-    Sp = 3.5 mm, h = 100 mm, kf = 180
     '''
+    Calculates water balance components for porous surfaces 
+    (porous and percolating stones, gravel lawn)    
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    Sp : float
+       storage height (mm)
+       
+    h : float
+      installation heigth (mm)
+               
+    kf : float 
+       hydraulic conductivity (mm /h)
+                          
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      Sp : 2.5 - 4.2 mm
+      h : 50 - 100 mm
+      kf : 10 - 180 mm/h
+      
+    Standard values are:
+      Sp = 3.5 mm
+      h = 100 mm
+      kf = 180 mm/h
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(Sp, 'Sp_porous_surface')
@@ -475,14 +511,48 @@ porous_surface(Area=1000, P=1000, ETp=650, Sp=4, h=100, kf=180)
 #%% Berechnungsansatz B.3.8: Rasengittersteine
 # Lawn grid stones / paver stone grids
 def paver_stonegrid(Area, P, ETp, FA=25, Sp=1, WKmax_WP=0.15):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). FA corresponds to the joint ratio of
-    the pavers or partially permable elements (FA standard value = 25).
-    The standard storage heigth (Sp) is 1 mm. WKmax corresponds to the 
-    maximal water capacity (-) and WP to wilting point (-). Standard value
-    for the difference (WKmax - WP) is 0.15.
     '''
+    Calculates water balance components for paver stone grids
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    FA :  float
+       joint ratio of the pavers or partially permeable elements (%)
+       
+    Sp : float
+       storage height (mm)
+               
+    WKmax_WP : float
+             maximal water capacity (WKmax) minus wilting point (WP) (-)
+                    
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      FA : 20 - 30 %
+      Sp : 0.1 - 2 mm
+      WKmax_WP : 0.1 - 0.2
+      
+    Standard values are:
+      FA = 25 %
+      Sp = 1
+      WKmax_WP = 0.15
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''    
+ 
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(FA, 'FA_paver_stonegrid')
@@ -527,13 +597,48 @@ paver_stonegrid(Area=1000, P=800, ETp=650)
 # Wassergebundene Decke, offiziell Deckschicht ohne Bindemittel (Kürzel: DoB)
 # gravel ground cover
 def gravel_cover(Area, P, ETp, h=100, Sp=3.5, kf=1.8):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). h stands for installation heigth (mm),
-    Sp stands for storage heigth (mm), kf corresponds to hydraulic
-    conductivity (mm/h). Standard values are:
-    h = 100 mm, Sp = 3.5 mm, kf = 180
     '''
+    Calculates water balance components for gravel covers or surfaces
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    h : float
+      installation heigth (mm)
+    
+    Sp : float
+       storage height (mm)
+                      
+    kf : float 
+       hydraulic conductivity (mm /h)
+                    
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      h : 500 - 100 mm
+      Sp : 2.5 - 4.2 mm
+      kf : 0.72 - 10 mm/h
+      
+    Standard values are:
+      h = 100 mm
+      Sp = 3.5 mm
+      kf : 1.8 mm/h
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''  
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(h, 'h_gravel_cover')
@@ -577,17 +682,36 @@ gravel_cover(Area=1000, P=1000, ETp=650)
 # Ableitung: Rohr, Rinne, steiler Graben
 # Drainage: pipe, channel, steep ditch
 def drainage(Area, P, ETp, drainage_type):
-    '''Area corresponds to the surface of the element in m2,
-    P stands for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). drainge_type is a text input, the possible
-    input options are:
-    "pipe", "Pipe", "PIPE", "Rohr", "rohr", "ROHR", "channel","Channel",
-    "CHANNEL", "Rinne", "rinne", "RINNE", "steep ditch", "Steep Ditch",
-    "STEEP DITCH", "steiler graben","steiler Graben", "STEILER GRABEN",
-    "Shallow ditches with vegetation", "Ditch with vegetation",
-    "ditch with vegetation", "Flache Gräben mit Bewuchs",
-    "Gräben mit Bewuchs"
     '''
+    Calculates water balance components for drainage elements
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    drainage_type : string
+                   "pipe", "rohr", "channel", "rinne", "steep ditch",
+                   "steiler graben", "ditch with vegetation",
+                   "gräben mit bewuchs"
+                    
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a   
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''    
+ 
     drainages = ("pipe", "Pipe", "PIPE", "Rohr", "rohr", "ROHR",
                  "channel", "Channel", "CHANNEL", "Rinne", "rinne",
                  "RINNE", "steep ditch", "Steep Ditch", "STEEP DITCH",
@@ -641,18 +765,48 @@ drainage(Area=1000, P=800, ETp=500, drainage_type="Pip3")
 #%% Berechnungsansatz B.4.1: Flächenversickerung
 # Surface infiltration
 def surf_infiltration(Area, P, ETp, kf, FAsf="FAsf_standard"):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). kf stands for hydraulic 
-    conductivity (mm/h). FAsf (%) stands for percentage of infiltration
-    area. The standard value is calculated in terms of kf as:
-    FAsf_standard = 94741*kf*exp(-1.195)
     '''
+    Calculates water balance components for surface infiltration
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    kf : float 
+       hydraulic conductivity (mm /h)
+       
+    FAsf : float
+        percentage of infiltration area (%)
+                        
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      kf : 325 - 1100 mm/h
+      FAsf : 66394*kf*exp(-1.197) - 70910*kf*exp(-1.117) (%)
+      
+    Standard values are:
+      FAsf_standard = 94741*kf*exp(-1.195)
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''
+    
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(kf, 'kf_surf_infiltration') 
     
     if (FAsf == "FAsf_standard"):
+        FAsf = 94741*kf**(-1.195)
         FAsf = 94741*kf**(-1.195)
         
     a = 0.004264 + 0.001121*np.log(P) - 0.002757*np.log(FAsf)
@@ -690,13 +844,42 @@ surf_infiltration(Area=1000, P=800, ETp=600, kf=500)
 #%% Berechnungsansatz B.4.2: Versickerungsmulde
 # Infiltration swale
 def infilt_swale(Area, P, ETp, kf, FAsm="FAsm_standard"):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). kf stands for hydraulic 
-    conductivity (mm/h). FAsm (%) stands for percentage of percolation
-    area (swale). The standard value is calculated in terms of kf as:
-    FAsm_standard = 42.323*kf*exp(-0.314)
     '''
+    Calculates water balance components for infiltration swales
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    kf : float 
+       hydraulic conductivity (mm /h)
+       
+    FAsf : float
+        percentage of infiltration area (%)
+                        
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      kf : 14 - 3600 mm/h
+      FAsf : 27.14*kf*exp(-0.303) - 62.414*kf*exp(-0.328) (%)
+      
+    Standard values are:
+      FAsf_standard = 42.323*kf*exp(-0.314)
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''  
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(kf, 'kf_infilt_swale') 
@@ -740,13 +923,42 @@ infilt_swale(Area=1000, P=800, ETp=700, kf=500)
 #%% Berechnungsansatz B.4.3: Mulde-Rigolen-Elemente
 # Swale-trench element
 def swale_trench(Area, P, ETp, kf, FAsm="FAsm_standard"):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). kf stands for hydraulic 
-    conductivity (mm/h). FAsm (%) stands for percentage of percolation
-    area (swale). The standard value is calculated in terms of kf as:
-    FAsm_standard = 21.86*kf*exp(-0.348)
     '''
+    Calculates water balance components for swale-trench elements
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    kf : float 
+       hydraulic conductivity (mm /h)
+       
+    FAsf : float
+        percentage of infiltration area (%)
+                        
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      kf : 3.6 - 36 mm/h
+      FAsf : 14.608*kf*exp(-0.406) - 47.634*kf*exp(-0.438) (%)
+      
+    Standard values are:
+      FAsf_standard = 21.86*kf*exp(-0.348)
+          
+    Returns
+    -------
+    results : DataFrame 
+    ''' 
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(kf, 'kf_swale_trench')
@@ -790,14 +1002,46 @@ swale_trench(Area=1000, P=700, ETp=500, kf=10)
 #%% Berechnungsansatz B.4.4: Mulden-Rigolen-System
 # Swale-trench system
 def swale_trench_system(Area, P, ETp, qDr, kf, FAsm="FAsm_standard"):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). qDr stands for the throttled discharge
-    yield (l/(s*ha)), and kf stands for hydraulic conductivity (mm/h).
-    FAsm stands for percentage of percolation area (%) calculated in
-    terms of the hydraulic conductivity kf (mm/h) and qDr as:
-    FAsm_standard = 11.79 - 3.14*LN(qDR) - 0.18594*kf
     '''
+    Calculates water balance components for swale-trench elements
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    qDr : float
+        throttled discharge yield (l/(s*ha))
+        
+    kf : float 
+       hydraulic conductivity (mm /h)
+       
+    FAsf : float
+        percentage of infiltration area (%)
+                        
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      qDr : 1 - 10 l/(s*ha)
+      kf : 0.36 - 3.6 mm/h
+      FAsf : -
+      
+    Standard values are:
+      FAsf_standard = 11.79 - 3.14*LN(qDr) - 0.18594*kf
+          
+    Returns
+    -------
+    results : DataFrame 
+    ''' 
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(qDr, 'qDr_swale_trench_system')
@@ -844,14 +1088,53 @@ swale_trench_system(Area=1000, P=800, ETp=500, qDr=6, kf=2)
 #%% Berechnungsansatz B.4.5: Regenwassernutzung
 # Rainwater usage
 def rainwater_usage(P, ETp, VSp, VBr, FAbw=2, qBw=60):
-    '''VSp stands for Specific storage volume (mm) in relation to the 
-    connected, flow-effective area. VBr correspond to the available 
-    water volume to use in relation to the connected, effective runoff
-    area (mm/d). FAbw corresponds to proportion of irrigated area in 
-    relation to the connected, effective runoff area (-).
-    qBw stands for specific annual requirement for irrigation 
-    (l/(m^2*year))
     '''
+    Calculates water balance components for rainwater usage
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    VSp : float
+        Specific storage volume (mm)
+        
+    VBr : float
+        Available water volume to use in relation to the connected,
+        effective runoff area (mm/d)
+        
+    FAbw : float 
+         proportion of irrigated area in relation to the connected,
+         effective runoff area (-)
+       
+    qBw : float
+        specific annual requirement for irrigation l/(m^2*a)
+                        
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      VSp : 10 - 200 mm
+      VBr : 0 - 5 mm/h
+      FAbw : 0 - 5
+      qBw : 0 - 200 l/(m^2*a)
+      
+    Standard values are:
+      FAbw = 2
+      qBw = 60 l/(m^2*a)
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''     
+    
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(VSp, 'VSp_rainwater_usage')
@@ -898,12 +1181,42 @@ rainwater_usage(P=800, ETp=500, VSp=100, VBr=2.5)
 # Pond system with inflow from paved areas
 def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
                A_4= 0, a_4= 0.0):
-    '''P stands for precipititaion (mm/a). ETp corresponds to 
-    potential evapotranspiration (mm/yr). Aw stands for pod surface (m2),
-    A_i corresponds to the Area i, which directs its runoff to the 
-    pond (m2), a_i corresonds to proportion of area i (0.0-1.0),
-    which directs its runoff to the pond (-)
     '''
+    Calculates water balance components for rainwater usage
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    Aw : float
+        pod surface (m2)
+        
+    A_i, ... , A_n : float
+                   Area i, which directs its runoff to the pond (m2)
+                   
+    a_i, ... , a_n : float
+                   proportion of area i (0.0-1.0), which directs its
+                   runoff to the pond (-) 
+                        
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      a_i : 0 - 1
+               
+    Returns
+    -------
+    results : DataFrame 
+    '''
+    
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(a_1, 'a_1_pod_system')
