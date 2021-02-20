@@ -135,4 +135,6 @@ if __name__ == "__main__":
     pcp = 505 
     # roof object
     roof = Roof(area, pcp, Etp)
+    # call steep
+    steep = roof.steep()
 
