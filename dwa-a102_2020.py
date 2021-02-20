@@ -17,16 +17,43 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 #%% Berechnungsansatz B.3.1: Steildach (alle Deckungsmaterialien),
 #### Flachdach (Metall, Glas)  
-def steep_roof(Area, P, ETp, Sp=0.3):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). Storage height (Sp) in roofs varies
-    between 0.1 and 0.6 mm. Standard storage value for steep roof
-    in general is 0.3 mm, in case of glass or metal cover use 0.6 mm
+def roof(Area, P, ETp, Sp=0.3):
+    '''
+    Calculates water balance parameters for steep roofs (all materials)
+    or flat roofs made with smooth materials (e.g. glass, metal)
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)    
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+    
+    Sp : float
+       storage height (mm)
+       
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P: 500 - 1700 mm/a
+      ETp: 450 - 700 mm/a 
+      Sp: 0.1 - 0.6 mm
+      
+    Standard Sp-values are:
+      Seep roof: Sp = 0.3 mm
+      Flat with smooth cover (glass or metal): Sp = 0.6 mm
+    
+    Returns
+    -------
+    results : DataFrame    
     '''  
     validRange(P, 'P')
     validRange(ETp, 'ETp')
-    validRange(Sp, 'Sp_steep_roof')  
+    validRange(Sp, 'Sp_roof')  
     a = 0.9115 + 0.00007063*P - 0.000007498*ETp - 0.2063*np.log(Sp + 1)
     g = 0
     v = 1-a-g
@@ -56,26 +83,52 @@ def steep_roof(Area, P, ETp, Sp=0.3):
     return(results)
 
 # Test
-steep_roof(Area=1000, P=800, ETp=500)
+roof(Area=1000, P=800, ETp=500)
 
 mmdlh = pyeto.monthly_mean_daylight_hours(pyeto.deg2rad(52.38), 2014)
 monthly_t = [3.1, 3.5, 5.0, 6.7, 9.3, 12.1, 14.3, 14.1, 11.8, 8.9, 5.5, 3.8]
 ETP_Thornthwaite = sum(pyeto.thornthwaite(monthly_t, mmdlh))
 
-steep_roof(Area=1000, P=800, ETp=ETP_Thornthwaite)
+roof(Area=1000, P=800, ETp=ETP_Thornthwaite)
 
 #%% Berechnungsansatz B.3.2: Flachdach (Dachpappe, Faserzement, Kies),
 #### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
 def flat_roof(Area, P, ETp, Sp=1.0):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). Storage (Sp) in flat roofs varies between 0.6
-    and 3 mm. Standard Sp-values are:
-    Flat roof with rough cover = 1;
-    Flat roof with gravel cover = 2;
-    Flat roof with asphalt or jointless concrete cover = 2.5;
-    Flat roof with plaster (tight joints) cover = 1.5
     '''
+    Calculates water balance parameters for flat roofs
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+    
+    Sp : float
+       storage height (mm)
+       
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a 
+      Sp : 0.6 - 3 mm
+      
+    Standard Sp-values are:
+      Flat roof with rough cover: Sp = 1
+      Flat roof with gravel cover: Sp = 2
+      Flat roof with asphalt or jointless concrete cover: Sp = 2.5
+      Flat roof with plaster (tight joints) cover: Sp = 1.5
+    
+    Returns
+    -------
+    results : DataFrame   
+    ''' 
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(Sp, 'Sp_flat_roof') 
@@ -114,13 +167,45 @@ flat_roof(1000, 550, 450, 0.6)
 
 #%% Berechnungsansatz B.3.3: Gründach
 def green_roof(Area, P, ETp, h, kf=70, WKmax_WP=0.5):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). Heigth (h) corresponds to the 
-    installation heigth of the green roof (mm), kf stands for hydraulic
-    conductivity (mm/h), WKmax corresponds to maximal water capacity (-)
-    and WP to wilting point (-). Standard value for the difference 
-    (WKmax - WP) is 0.5
+    '''
+    Calculates water balance parameters for green roofs
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    h : float
+      installation heigth (mm)
+        
+    kf : float 
+       hydraulic conductivity (mm /h)  
+    
+    WKmax_WP : float
+             maximal water capacity (WKmax) minus wilting point (WP) (-)
+                    
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a 
+      h : 40 - 500 mm
+      kf : 18 - 100 mm/h
+      WKmax_WP : 0.35 - 0.65
+      
+    Standard values are:
+      kf = 70 mm/h
+      WKmax_WP = 0.5
+          
+    Returns
+    -------
+    results : DataFrame 
     '''
     
     validRange(P, 'P')
@@ -163,11 +248,36 @@ green_roof(Area= 1000, P=550, ETp=450, h=100)
 
 #%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
 def storage_roof(Area, P, ETp, Sp=5):
-    ''' Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). Sp stands for storage heigth (Sp),
-    which should be bigger than 3 mm and lower than 10 mm.
-    Standard value for Sp = 5.
+    '''
+    Calculates water balance parameters for storage roofs
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    Sp : float
+       storage height (mm)
+                    
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a 
+      Sp : 3 - 10 mm
+      
+    Standard Sp-value is:
+      Sp : 5 mm
+          
+    Returns
+    -------
+    results : DataFrame 
     '''
     validRange(P, 'P')
     validRange(ETp, 'ETp')
@@ -207,22 +317,52 @@ storage_roof(Area=1000, P=550, ETp=450)
 ### (Fugenanteil 2 % bis 10 %)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
 def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax_WP=0.15):
-    '''Area corresponds to the surface of the element in m2, P stands
-    for precipititaion (mm/a). ETp corresponds to potential
-    evapotranspiration (mm/yr). FA corresponds to the joint ratio of
-    the pavers or partially permable elements. The standard storage
-    heigth (Sp) is 1 mm for FA = 4, or FA = 8. WKmax corresponds to 
-    maximal water capacity (-) and WP to wilting point (-).
-    Standard value for difference (WKmax - WP) is 0.15. kf stands for
-    hydraulic conductivity (mm/h), standard values are 18 mm/h,
-    and 36 mm/h for FA = 4, and FA = 8, repectively.    
     '''
-    validRange(P, 'P')
-    validRange(ETp, 'ETp')
-    validRange(FA, 'FA_permeable_surface')
-    validRange(kf, 'kf_permeable_surface')
-    validRange(Sp, 'Sp_permeable_surface')
-    validRange(WKmax_WP, 'WKmax_WP_permeable_surface')
+    Calculates water balance parameters for permeable surfaces
+    
+    Parameters
+    ----------
+    Area : float
+         element area (m2)      
+    
+    P : float
+      precipitation (mm/a)
+      
+    ETp : float
+        evapotranspiration (mm/a)
+        
+    FA :  float
+       joint ratio of the pavers or partially permeable elements (%)
+        
+    kf : float 
+       hydraulic conductivity (mm /h)
+       
+    Sp : float
+       storage height (mm)
+    
+    WKmax_WP : float
+             maximal water capacity (WKmax) minus wilting point (WP) (-)
+                    
+    Notes    
+    ------
+    Ranges of validity for the paremeters are:
+      P : 500 - 1700 mm/a
+      ETp : 450 - 700 mm/a
+      FA : 2 - 10 %
+      kf : 6 - 100 mm/h
+      Sp : 0.1 - 2 mm
+      WKmax_WP : 0.1 - 0.2
+      
+    Standard values are:
+      Sp = 1 mm
+      WKmax_WP = 0.15
+      kf = 18 (if 2 <= FA < 6)
+      kf = 36 (if 6 <= FA <= 10)
+          
+    Returns
+    -------
+    results : DataFrame 
+    '''
     
 ### Berechnungsansatz B.3.5: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 2 % bis 5 %)
