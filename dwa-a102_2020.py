@@ -51,6 +51,8 @@ def roof(Area, P, ETp, Sp=0.3):
     -------
     results : DataFrame    
     '''  
+
+
     validRange(P, 'P')
     validRange(ETp, 'ETp')
     validRange(Sp, 'Sp_roof')  
@@ -81,9 +83,11 @@ def roof(Area, P, ETp, Sp=0.3):
     results = pd.DataFrame(results)
     results.Value = results.Value.round(3)
     return(results)
-
+#%%
 # Test
+
 roof(Area=1000, P=800, ETp=500)
+
 
 mmdlh = pyeto.monthly_mean_daylight_hours(pyeto.deg2rad(52.38), 2014)
 monthly_t = [3.1, 3.5, 5.0, 6.7, 9.3, 12.1, 14.3, 14.1, 11.8, 8.9, 5.5, 3.8]
