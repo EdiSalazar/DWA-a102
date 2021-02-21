@@ -1,0 +1,505 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Feb 21 16:42:52 2021
+
+@author: Edi
+"""
+
+import numpy as np
+import pandas as pd
+from check_ranges import validRange
+
+
+#%% Starting classe Surface
+
+class Measure(object):
+    def __init__(self, p, etp, fasf=0, fasm=0, kf=0, qdr=0, vsp=0, vbr=0,
+                 fabw=0, qbw=0, aw = 0, A_1=0, a_1=0, A_2=0, a_2=0, A_3= 0,
+                 a_3= 0.0, A_4= 0, a_4= 0.0, drainage_type = ""):
+        self.p = p
+        self.etp = etp
+        self.fasf = fasf
+        self.kf = kf
+        self.qdr = qdr
+        self.vsp = vsp
+        self.vbr = vbr
+        self.fabw = fabw
+        self.qbw = qbw
+        self.aw = aw
+        self.A_1 = A_1
+        self.a_1 = a_1
+        self.A_2 = A_2
+        self.a_2 = a_2
+        self.A_3 = A_3
+        self.a_3 = a_3
+        self.A_4 = A_4
+        self.a_4 = a_4
+        self.drainage_type = drainage_type
+        
+    def __str__(self):
+        return (
+            f"Measure to reduce runoff in a area with precipitation of {self.p} mm/a,"
+            f" and potential evapotranspiration of {self.etp} mm/a"
+            )
+    
+    #%% Aufteilungswerte und Berechnungsansätze für Anlagen
+    # Ableitung: Rohr, Rinne, steiler Graben
+    # Drainage: pipe, channel, steep ditch
+    
+    def drainage(self):
+        '''
+        Calculates water balance components for drainage elements
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        drainage_type : string
+                       "pipe", "rohr", "channel", "rinne", "steep ditch",
+                       "steiler graben", "ditch with vegetation",
+                       "gräben mit bewuchs"
+                        
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a   
+              
+        Returns
+        -------
+        results : DataFrame 
+        '''    
+     
+        drainages = ("pipe", "Pipe", "PIPE", "Rohr", "rohr", "ROHR",
+                     "channel", "Channel", "CHANNEL", "Rinne", "rinne",
+                     "RINNE", "steep ditch", "Steep Ditch", "STEEP DITCH",
+                     "steiler graben", "steiler Graben", "STEILER GRABEN")
+        veg_drainage = ("Shallow ditches with vegetation",
+                        "Ditch with vegetation", "ditch with vegetation",
+                        "Flache Gräben mit Bewuchs", "Gräben mit Bewuchs")
+    
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+    
+        if ((self.drainage_type in drainages) or
+            (self.drainage_type in veg_drainage))  == False:
+            return ("Wrong input as drinage-type")
+        if (self.drainage_type in drainages) == True:   
+            a = 1
+            g = 0
+            v = 0
+        if (self.drainage_type in veg_drainage) == True:
+            a = 0.7
+            g = 0.1
+            v = 0.2
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+
+    
+    #%% Berechnungsansatz B.2: Flächenversickerung
+    # Surface infiltration
+    def surf_infiltration(self):
+        '''
+        Calculates water balance components for surface infiltration
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        kf : float 
+           hydraulic conductivity (mm /h)
+           
+        FAsf : float
+            percentage of infiltration area (%)
+                            
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a
+          kf : 325 - 1100 mm/h
+          FAsf : 66394*kf*exp(-1.197) - 70910*kf*exp(-1.117) (%)
+          
+        Standard values are:
+          FAsf_standard = 94741*kf*exp(-1.195)
+              
+        Returns
+        -------
+        results : DataFrame 
+        '''
+        
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+        validRange(self.kf, 'kf_surf_infiltration') 
+        
+        if (self.fasf == "FAsf_standard"):
+            self.fasf = 94741*self.kf**(-1.195)
+            self.fasf = 94741*self.kf**(-1.195)
+            
+        a = 0.004264 + 0.001121*np.log(self.p) - 0.002757*np.log(self.fasf)
+        # g = (0.6207904 + 0.0899322*np.log(self.p) - 0.0001152*self.etp
+        #      - 0.0719723*np.log(self.fasf))
+        v = 0.3999 - 0.09317*np.log(self.p) + 0.00009746*self.etp + 0.07474*np.log(self.fasf)
+        g = max((1 - (a + v)), 0.0)
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+       
+    #%% Berechnungsansatz B.3: Versickerungsmulden
+    # Infiltration swale
+    def infilt_swale(self):
+        '''
+        Calculates water balance components for infiltration swales
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        kf : float 
+           hydraulic conductivity (mm /h)
+           
+        FAsf : float
+            percentage of infiltration area (%)
+                            
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a
+          kf : 14 - 3600 mm/h
+          FAsf : 27.14*kf*exp(-0.303) - 62.414*kf*exp(-0.328) (%)
+          
+        Standard values are:
+          FAsf_standard = 42.323*kf*exp(-0.314)
+              
+        Returns
+        -------
+        results : DataFrame 
+        '''  
+    
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+        validRange(self.kf, 'kf_infilt_swale') 
+        
+        if (self.fasm == "FAsm_standard"):
+            self.fasm = 42.323*self.kf**(-0.314)       
+        
+        g = (0.8608 + 0.02385*np.log(self.p) - 0.00005331*self.etp - 0.002827*self.fasm
+              - 0.000002493*self.kf + 0.0009514*np.log(self.kf/self.fasm))
+        v = 0.000008562*self.etp + (2.611/(self.p-64.35))*self.fasm**0.9425 - 0.000001211*self.kf
+        # a = 1 - g - v
+        # To force positive values or zero
+        a = max((1 - (g + v)), 0.0)
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+        
+    #%% Berechnungsansatz B.4: Mulden-Rigolen-Elemente
+    # Swale-trench element
+    def swale_trench(self):
+        '''
+        Calculates water balance components for swale-trench elements
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        kf : float 
+           hydraulic conductivity (mm /h)
+           
+        FAsf : float
+            percentage of infiltration area (%)
+                            
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a
+          kf : 3.6 - 36 mm/h
+          FAsf : 14.608*kf*exp(-0.406) - 47.634*kf*exp(-0.438) (%)
+          
+        Standard values are:
+          FAsf_standard = 21.86*kf*exp(-0.348)
+              
+        Returns
+        -------
+        results : DataFrame 
+        ''' 
+    
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+        validRange(self.kf, 'kf_swale_trench')
+        
+        if (self.fasm == "FAsm_standard"):
+            self.fasm = 21.86*self.kf**(-0.348)
+            
+        a = (-0.03867 + 0.007684*np.log(self.p) + 0.000003201*self.fasm + 0.0002564*self.kf
+             - 0.0001187*self.fasm*self.kf + 0.004161*np.log(self.kf/self.fasm))
+        # g = (0.8803 + 0.01866*np.log(self.p) - 0.00004867*self.etp
+        #      - 0.001997*self.fasm + 0.0002365*self.kf)
+        v = 0.000008879*self.etp + (2.528/(self.p-81.65))*self.fasm**0.9496 - 0.00007768*self.kf
+        g = max((1 - (a + v)), 0.0)
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+    
+    #%% Berechnungsansatz B.5: Mulden-Rigolen-Systeme
+    # Swale-trench system
+    def swale_trench_system(self):
+        '''
+        Calculates water balance components for swale-trench elements
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        qDr : float
+            throttled discharge yield (l/(s*ha))
+            
+        kf : float 
+           hydraulic conductivity (mm /h)
+           
+        FAsf : float
+            percentage of infiltration area (%)
+                            
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a
+          qDr : 1 - 10 l/(s*ha)
+          kf : 0.36 - 3.6 mm/h
+          FAsf : -
+          
+        Standard values are:
+          FAsf_standard = 11.79 - 3.14*LN(qDr) - 0.18594*kf
+              
+        Returns
+        -------
+        results : DataFrame 
+        ''' 
+    
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+        validRange(self.qdr, 'qDr_swale_trench_system')
+        validRange(self.kf, 'kf_swale_trench_system')
+        
+        
+        if (self.fasm == "FAsm_standard"):
+            self.fasm = 11.79 - 3.14*np.log(self.qdr) - 0.18594*self.kf
+            
+        a = (0.8112 + 0.0003473*self.p - 0.00001845*self.etp - 0.04793*self.fasm
+              + 0.0007481*self.qdr - 0.4389*np.log(self.kf + 1))
+        # g = (1.669 - 0.3005*np.log(self.p) - 0.00006933*self.etp
+        #       + 0.3044*np.log(self.fasm) + 0.4581*np.log(self.kf + 1))
+        v = (0.1428 - 0.02661*np.log(self.p) + 0.00005668*self.etp + 0.0288*np.log(self.fasm)
+              - 0.0001825*self.qdr - 0.01823*np.log(self.kf + 1))
+        g = max((1 - (a + v)), 0.0)
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+    
+    #%% Berechnungsansatz B.6: Anlagen zur Niederschlagswassernutzung
+    # Rainwater usage
+    def rainwater_usage(self):
+        '''
+        Calculates water balance components for rainwater usage
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        VSp : float
+            Specific storage volume (mm)
+            
+        VBr : float
+            Available water volume to use in relation to the connected,
+            effective runoff area (mm/d)
+            
+        FAbw : float 
+             proportion of irrigated area in relation to the connected,
+             effective runoff area (-)
+           
+        qBw : float
+            specific annual requirement for irrigation l/(m^2*a)
+                            
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a
+          VSp : 10 - 200 mm
+          VBr : 0 - 5 mm/h
+          FAbw : 0 - 5
+          qBw : 0 - 200 l/(m^2*a)
+          
+        Standard values are:
+          FAbw = 2
+          qBw = 60 l/(m^2*a)
+              
+        Returns
+        -------
+        results : DataFrame 
+        '''     
+        
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+        validRange(self.vsp, 'VSp_rainwater_usage')
+        validRange(self.vbr, 'VBr_rainwater_usage')
+        validRange(self.fabw, 'FAbw_rainwater_usage')
+        validRange(self.qbw, 'qBw_rainwater_usage')
+        
+        
+        VBw = self.fabw*self.qbw
+        Vnmin = min(self.p, 365*self.vbr + VBw)
+        if VBw == 0:
+            v = 0
+        else:
+            v = (- 0.0001927*self.p + 0.0001831*self.etp + 0.0006083*VBw
+                 - 0.0000003127*VBw**2 - 0.3092*np.exp(3.269/self.vsp)
+                 + (1.424/(2.782 + self.vbr)) + 0.0001885*Vnmin)
+        if self.vbr == 0:
+            e = 0
+        else:
+            e = (0.4451 - 0.0003529*self.p - 0.00007728*self.etp + 0.06821*np.log10(self.vsp)
+                 - 0.0002507*VBw + 0.2349*np.log10(self.vbr) + 0.0001738*Vnmin)
+        a = max((1 - (v + e)), 0.0)
+        g = 0.0
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+    
+    
+    #%% Berechnungsansatz B.7: Wasserfläche mit Dauerstau
+    #### Water surface with permanent storage  
+    # Pond system with inflow from paved areas
+    def pod_system(self):
+        '''
+        Calculates water balance components for rainwater usage
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)      
+        
+        P : float
+          precipitation (mm/a)
+          
+        ETp : float
+            evapotranspiration (mm/a)
+            
+        Aw : float
+            pod surface (m2)
+            
+        A_i, ... , A_n : float
+                       Area i, which directs its runoff to the pond (m2)
+                       
+        a_i, ... , a_n : float
+                       proportion of area i (0.0-1.0), which directs its
+                       runoff to the pond (-) 
+                            
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          P : 500 - 1700 mm/a
+          ETp : 450 - 700 mm/a
+          a_i : 0 - 1
+                   
+        Returns
+        -------
+        results : DataFrame 
+        '''
+        
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+        validRange(self.a_1, 'a_1_pod_system')
+        validRange(self.a_2, 'a_2_pod_system')
+        validRange(self.a_3, 'a_1_pod_system')
+        validRange(self.a_4, 'a_1_pod_system')
+        
+        v = ((self.etp*self.aw)/(self.p*(self.aw + self.A_1*self.a_1 + self.A_2*self.a_2
+                                    + self.A_3*self.a_3 + self.A_4*self.a_4)))
+        a = 1 - v
+        g = 0
+        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
+                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
+                   {'Name' : "a", 'Unit': "-", 'Value': a},
+                   {'Name' : "g", 'Unit': "-", 'Value': g},
+                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = pd.DataFrame(results)
+        results.Value = results.Value.round(3)
+        return(results)
+    
