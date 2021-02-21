@@ -994,7 +994,8 @@ class Measure(object):
                    {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
                    {'Name' : "a", 'Unit': "-", 'Value': a},
                    {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+                   {'Name' : "v", 'Unit': "-", 'Value': v},
+                   {'Name' : "e", 'Unit': "-", 'Value': e}]
         results = pd.DataFrame(results)
         results.Value = results.Value.round(3)
         return(results)
