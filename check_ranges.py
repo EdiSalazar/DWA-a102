@@ -47,4 +47,6 @@ def validRange(val, param):
     ''' generic function to check parameter range'''
     
     if ( (val < param_rages[param][0]) or (val > param_rages[param][1]) ): 
-        raise Exception(f'{param_rages[param][2]} is not valid. Valid range:{param_rages[param][0]} - {param_rages[param][1]} {param_rages[param][3]}')
+        raise Exception(f"{param_rages[param][2]} is not valid."
+                        f" Acceptable range: {param_rages[param][0]} - {param_rages[param][1]}"
+                        f" {param_rages[param][3]}")
