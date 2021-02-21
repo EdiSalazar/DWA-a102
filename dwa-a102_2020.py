@@ -15,8 +15,8 @@ from check_ranges import validRange
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 
-#%% Berechnungsansatz B.3.1: Steildach (alle Deckungsmaterialien),
-#### Flachdach (Metall, Glas)  
+#%% Berechnungsansatz A.2: Steildach Steildächer (alle Materialien), 
+#### Flachdach (glatte Materialien)  
 def roof(Area, P, ETp, Sp=0.3):
     '''
     Calculates water balance components for steep roofs (all materials)
@@ -95,8 +95,9 @@ ETP_Thornthwaite = sum(pyeto.thornthwaite(monthly_t, mmdlh))
 
 roof(Area=1000, P=800, ETp=ETP_Thornthwaite)
 
-#%% Berechnungsansatz B.3.2: Flachdach (Dachpappe, Faserzement, Kies),
-#### Asphalt, fugenloser Beton, Pflaster mit dichten Fugen  
+#%% Berechnungsansatz A.3: Flachdächer (raue Materialien, Kies), Asphalt,
+#### fugenloser Beton,Pflaster mit dichten Fugen
+ 
 def flat_roof(Area, P, ETp, Sp=1.0):
     '''
     Calculates water balance components for flat roofs
@@ -169,7 +170,8 @@ flat_roof(1000, 500, 450, 0.6)
 flat_roof(1000, 550, 450, 0.6)
 # sum(flat_roof(550, 450, 0.6))
 
-#%% Berechnungsansatz B.3.3: Gründach
+#%% Berechnungsansatz A.4: Gründächer
+
 def green_roof(Area, P, ETp, h, kf=70, WKmax_WP=0.5):
     '''
     Calculates water balance components for green roofs
@@ -250,7 +252,7 @@ def green_roof(Area, P, ETp, h, kf=70, WKmax_WP=0.5):
 # Test
 green_roof(Area= 1000, P=550, ETp=450, h=100)
 
-#%% Berechnungsansatz B.3.4: Einstaudach (Speicherhöhe > 3mm)
+#%% Berechnungsansatz A.5: Einstaudächer
 def storage_roof(Area, P, ETp, Sp=5):
     '''
     Calculates water balance components for storage roofs
@@ -317,7 +319,7 @@ def storage_roof(Area, P, ETp, Sp=5):
 # Test
 storage_roof(Area=1000, P=550, ETp=450)
 
-#%% Berechnungsansatz B.3.5 & B.3.6: Teildurchlässige Flächenbeläge
+#%% Berechnungsansatz A.6 & A.7: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 2 % bis 10 %)
 # Partially permeable surfaces (Joint ratio 2 % to 10 %)
 def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax_WP=0.15):
@@ -368,7 +370,7 @@ def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax_WP=0.15):
     results : DataFrame 
     '''
     
-### Berechnungsansatz B.3.5: Teildurchlässige Flächenbeläge
+### Berechnungsansatz A.6: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 2 % bis 5 %)
 # Partially permeable surfaces (Joint ratio 2 % to 5 %)   
     if (FA >= 2 and FA <= 5):
@@ -382,7 +384,7 @@ def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax_WP=0.15):
         # To fullfill the conservation mass (a+g+v=1). My decision is to apply:
         g = 1-a-v
 
-### Berechnungsansatz B.3.6: Teildurchlässige Flächenbeläge
+### Berechnungsansatz A.7: Teildurchlässige Flächenbeläge
 ### (Fugenanteil 6 % bis 10 %)
 # Partially permeable surfaces (Joint ratio 6 % to 10 %)
 # This funtion can be joint with the previous one and add the param "slope"     
@@ -424,10 +426,11 @@ def permeable_surface(Area, P, ETp, FA, kf, Sp=1, WKmax_WP=0.15):
 permeable_surface(Area=1000, P=650, ETp=500, FA=8, kf=36)
 permeable_surface(1000, 650, 500, 4, 18)  
 
-#%% Berechnungsansatz B.3.7: Teildurchlässige Flächenbeläge
-### (Porensteine, Sickersteine), Kiesbelag, Schotterrasen
+#%% Berechnungsansatz A.8: Teildurchlässige Flächenbeläge 
+#### (Poren- und Sickersteine, Schotterrasen, Kies)
 # Partially permeable surfaces
 # (pore stones, seepage stones), gravel surface, gravel lawn
+
 def porous_surface(Area, P, ETp, Sp=3.5, h=100, kf=180):
     '''
     Calculates water balance components for porous surfaces 
@@ -512,8 +515,9 @@ def porous_surface(Area, P, ETp, Sp=3.5, h=100, kf=180):
 # Test
 porous_surface(Area=1000, P=1000, ETp=650, Sp=4, h=100, kf=180)
 
-#%% Berechnungsansatz B.3.8: Rasengittersteine
-# Lawn grid stones / paver stone grids
+#%% Berechnungsansatz A.9: Rasengittersteine
+# Paver stone grids / Grass pavers
+
 def paver_stonegrid(Area, P, ETp, FA=25, Sp=1, WKmax_WP=0.15):
     '''
     Calculates water balance components for paver stone grids
@@ -597,9 +601,10 @@ def paver_stonegrid(Area, P, ETp, FA=25, Sp=1, WKmax_WP=0.15):
 # Test
 paver_stonegrid(Area=1000, P=800, ETp=650)
 
-#%% Berechnungsansatz B.3.9: Wassergebundene Decke
+#%% Berechnungsansatz A.10: Deckschichten ohne Bindemittel (wassergebundene Decke) 
 # Wassergebundene Decke, offiziell Deckschicht ohne Bindemittel (Kürzel: DoB)
 # gravel ground cover
+
 def gravel_cover(Area, P, ETp, h=100, Sp=3.5, kf=1.8):
     '''
     Calculates water balance components for gravel covers or surfaces
@@ -682,9 +687,10 @@ def gravel_cover(Area, P, ETp, h=100, Sp=3.5, kf=1.8):
 # Test
 gravel_cover(Area=1000, P=1000, ETp=650)
 
-#%% Berechnungsansatz B.4 Aufteilungswerte und Berechnungsansätze für Anlagen
+#%% Aufteilungswerte und Berechnungsansätze für Anlagen
 # Ableitung: Rohr, Rinne, steiler Graben
 # Drainage: pipe, channel, steep ditch
+
 def drainage(Area, P, ETp, drainage_type):
     '''
     Calculates water balance components for drainage elements
@@ -766,7 +772,7 @@ drainage(Area=1000, P=800, ETp=500, drainage_type="ditch with vegetation")
 drainage(Area=1000, P=800, ETp=500, drainage_type="Rohr")
 drainage(Area=1000, P=800, ETp=500, drainage_type="Pip3")
 
-#%% Berechnungsansatz B.4.1: Flächenversickerung
+#%% Berechnungsansatz B.2: Flächenversickerung
 # Surface infiltration
 def surf_infiltration(Area, P, ETp, kf, FAsf="FAsf_standard"):
     '''
@@ -845,7 +851,7 @@ def surf_infiltration(Area, P, ETp, kf, FAsf="FAsf_standard"):
 # Test
 surf_infiltration(Area=1000, P=800, ETp=600, kf=500)
 
-#%% Berechnungsansatz B.4.2: Versickerungsmulde
+#%% Berechnungsansatz B.3: Versickerungsmulden
 # Infiltration swale
 def infilt_swale(Area, P, ETp, kf, FAsm="FAsm_standard"):
     '''
@@ -924,7 +930,7 @@ def infilt_swale(Area, P, ETp, kf, FAsm="FAsm_standard"):
 # Test
 infilt_swale(Area=1000, P=800, ETp=700, kf=500)
 
-#%% Berechnungsansatz B.4.3: Mulde-Rigolen-Elemente
+#%% Berechnungsansatz B.4: Mulden-Rigolen-Elemente
 # Swale-trench element
 def swale_trench(Area, P, ETp, kf, FAsm="FAsm_standard"):
     '''
@@ -1003,7 +1009,7 @@ def swale_trench(Area, P, ETp, kf, FAsm="FAsm_standard"):
 # Test
 swale_trench(Area=1000, P=700, ETp=500, kf=10)
 
-#%% Berechnungsansatz B.4.4: Mulden-Rigolen-System
+#%% Berechnungsansatz B.5: Mulden-Rigolen-Systeme
 # Swale-trench system
 def swale_trench_system(Area, P, ETp, qDr, kf, FAsm="FAsm_standard"):
     '''
@@ -1089,7 +1095,7 @@ def swale_trench_system(Area, P, ETp, qDr, kf, FAsm="FAsm_standard"):
 # Test
 swale_trench_system(Area=1000, P=800, ETp=500, qDr=6, kf=2)
 
-#%% Berechnungsansatz B.4.5: Regenwassernutzung
+#%% Berechnungsansatz B.6: Anlagen zur Niederschlagswassernutzung
 # Rainwater usage
 def rainwater_usage(P, ETp, VSp, VBr, FAbw=2, qBw=60):
     '''
@@ -1181,7 +1187,8 @@ def rainwater_usage(P, ETp, VSp, VBr, FAbw=2, qBw=60):
 # Test
 rainwater_usage(P=800, ETp=500, VSp=100, VBr=2.5)
 
-#%% Berechnungsansatz B.4.6: Teichanlage mit Zufluss von befestigten Flächen
+#%% Berechnungsansatz B.7: Wasserfläche mit Dauerstau
+#### Water surface with permanent storage  
 # Pond system with inflow from paved areas
 def pod_system(P, ETp, Aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
                A_4= 0, a_4= 0.0):
