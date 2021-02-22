@@ -14,19 +14,23 @@ from climate import climate
 #%% Starting classe Surface
 
 class Surface(object):
-    def __init__(self, area, p, etp, sp=0, h=0, kf=0, wkmax_wp=0, fa=0):
-        self.area = area
-        self.p = p
-        self.etp = etp
-        self.sp = sp
-        self.h = h
-        self.kf = kf
-        self.wkmax_wp = wkmax_wp
-        self.fa = fa
+    def __init__(self, p=800, etp=500, location=None):
+        self.location = location
         
+        if self.location:
+            p, etp = climate(self.location)
+            self.p = p
+            self.etp = etp
+        else:
+            self.p = p
+            self.etp = etp
+
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+                   
     def __str__(self):
         return (
-            f"Surface with area: {self.area} m2, precipitation of {self.p} mm/a,"
+            f"Surface located in {self.location}, precipitation of {self.p} mm/a,"
             f" and potential evapotranspiration of {self.etp} mm/a"
             )
 
