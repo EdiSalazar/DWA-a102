@@ -8,6 +8,7 @@ Created on Sun Feb 21 16:42:52 2021
 import numpy as np
 import pandas as pd
 from check_ranges import validRange
+from climate import climate
 
 
 #%% Starting classe Surface
