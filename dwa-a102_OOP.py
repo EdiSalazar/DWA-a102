@@ -217,8 +217,6 @@ class Surface(object):
         results.Value = results.Value.round(3)
         return(results)
     
-    # Test
-    
     #%% Berechnungsansatz A.5: Einstaudächer
     def storage_roof(self):
         '''
@@ -570,6 +568,8 @@ class Surface(object):
         results.Value = results.Value.round(3)
         return(results)
 
+        
+    #%% New class Measure
 class Measure(object):
     def __init__(self, p, etp, fasf=0, fasm=0, kf=0, qdr=0, vsp=0, vbr=0,
                  fabw=0, qbw=0, aw = 0, A_1=0, a_1=0, A_2=0, a_2=0, A_3= 0,

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pyeto as pyeto
 from check_ranges import validRange
-from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
+# from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 
 #%% Berechnungsansatz A.2: Steildach Steildächer (alle Materialien), 
