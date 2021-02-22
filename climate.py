@@ -29,4 +29,8 @@ climate_dict = {
 }
 
 def climate(place):
-    return f"{climate_dict[place][0]}, {climate_dict[place][1]}"
+    p = climate_dict[place][0]
+    etp = climate_dict[place][1]
+    return p, etp
+
+# p,etp = climate("Bayern")
