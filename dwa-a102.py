@@ -773,7 +773,7 @@ class Measure(object):
     
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.kf, 'kf_infilt_swale') 
+        # validRange(self.kf, 'kf_infilt_swale') 
         
         if (self.fasm == "FAsm_standard"):
             self.fasm = 42.323*self.kf**(-0.314)       
@@ -959,7 +959,7 @@ class Measure(object):
           P : 500 - 1700 mm/a
           ETp : 450 - 700 mm/a
           VSp : 10 - 200 mm
-          VBr : 0 - 5 mm/h
+          VBr : 0 - 5 mm/d
           FAbw : 0 - 5
           qBw : 0 - 200 l/(m^2*a)
           
@@ -977,7 +977,7 @@ class Measure(object):
         validRange(self.vsp, 'VSp_rainwater_usage')
         validRange(self.vbr, 'VBr_rainwater_usage')
         validRange(self.fabw, 'FAbw_rainwater_usage')
-        validRange(self.qbw, 'qBw_rainwater_usage')
+        # validRange(self.qbw, 'qBw_rainwater_usage')
         
         
         VBw = self.fabw*self.qbw
