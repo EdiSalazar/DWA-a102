@@ -6,8 +6,8 @@ Created on Fri Feb 19 10:12:05 2021
 """
 
 param_rages = {
-    'P': [500, 1700, 'Precipitation (p)', 'mm/a'], 
-    'ETp' :[450, 700, 'Evapotranspiration (etp)', 'mm/a'], 
+    'P': [500, 1700, 'Precipitation', 'mm/a'], 
+    'ETp' :[450, 700, 'Evapotranspiration', 'mm/a'], 
     'Sp_roof': [0.1, 0.6, 'Storage height (sp)', 'mm/a'],
     'Sp_flat_area': [0.6, 3, 'Storage height (sp)', 'mm'],
     'h_green_roof': [40, 500, 'Installation height (h)', 'mm'],
