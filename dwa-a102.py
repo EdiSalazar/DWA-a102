@@ -11,12 +11,10 @@ from check_ranges import validRange
 from climate import climate
 
 
-#%% Starting classe Surface
-
-class Surface(object):
+#%% Starting class Surface
+class StudyArea(object):
     def __init__(self, p=800, etp=500, location=None):
-        self.location = location
-        
+        self.location = location        
         if self.location:
             p, etp = climate(self.location)
             self.p = p
@@ -28,6 +26,29 @@ class Surface(object):
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
                    
+    def __str__(self):
+        return (
+            f"Study area has a precipitation of {self.p} mm/a,"
+            f" and potential evapotranspiration of {self.etp} mm/a"
+            )
+
+
+#%% Starting class Surface
+
+class Surface(StudyArea):
+    # def __init__(self, p=800, etp=500, location=None):
+    #     self.location = location        
+    #     if self.location:
+    #         p, etp = climate(self.location)
+    #         self.p = p
+    #         self.etp = etp
+    #     else:
+    #         self.p = p
+    #         self.etp = etp
+
+    #     validRange(self.p, 'P')
+    #     validRange(self.etp, 'ETp')
+               
     def __str__(self):
         return (
             f"Surface with precipitation of {self.p} mm/a,"
@@ -546,8 +567,7 @@ class Surface(object):
         Returns
         -------
         results : DataFrame 
-        '''  
-    
+        '''      
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
         validRange(h, 'h_gravel_cover')
@@ -570,44 +590,21 @@ class Surface(object):
                     'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
         return(results)
-
         
     #%% New class Measure
-class Measure(object):
-    def __init__(self, p, etp, fasf=0, fasm=0, kf=0, qdr=0, vsp=0, vbr=0,
-                 fabw=0, qbw=0, aw = 0, A_1=0, a_1=0, A_2=0, a_2=0, A_3= 0,
-                 a_3= 0.0, A_4= 0, a_4= 0.0, drainage_type = ""):
-        self.p = p
-        self.etp = etp
-        self.fasf = fasf
-        self.kf = kf
-        self.qdr = qdr
-        self.vsp = vsp
-        self.vbr = vbr
-        self.fabw = fabw
-        self.qbw = qbw
-        self.aw = aw
-        self.A_1 = A_1
-        self.a_1 = a_1
-        self.A_2 = A_2
-        self.a_2 = a_2
-        self.A_3 = A_3
-        self.a_3 = a_3
-        self.A_4 = A_4
-        self.a_4 = a_4
-        self.drainage_type = drainage_type
+class Measure(StudyArea):
+    # def __init__(self, *surfaces):
+    #     # self.surfaces: surfaces
+    #     pass
         
     def __str__(self):
-        return (
-            f"Measure to reduce runoff in a area with precipitation of {self.p} mm/a,"
-            f" and potential evapotranspiration of {self.etp} mm/a"
-            )
+        return "Measure to reduce runoff from the given surfaces"
     
     #%% Aufteilungswerte und Berechnungsansätze für Anlagen
     # Ableitung: Rohr, Rinne, steiler Graben
     # Drainage: pipe, channel, steep ditch
     
-    def drainage(self):
+    def drainage(self, drainage_type, *surfaces):
         '''
         Calculates water balance components for drainage elements
         
@@ -646,17 +643,17 @@ class Measure(object):
                         "Ditch with vegetation", "ditch with vegetation",
                         "Flache Gräben mit Bewuchs", "Gräben mit Bewuchs")
     
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
+        # validRange(self.p, 'P')
+        # validRange(self.etp, 'ETp')
     
-        if ((self.drainage_type in drainages) or
-            (self.drainage_type in veg_drainage))  == False:
+        if ((drainage_type in drainages) or
+            (drainage_type in veg_drainage))  == False:
             return ("Wrong input as drinage-type")
-        if (self.drainage_type in drainages) == True:   
+        if (drainage_type in drainages) == True:   
             a = 1
             g = 0
             v = 0
-        if (self.drainage_type in veg_drainage) == True:
+        if (drainage_type in veg_drainage) == True:
             a = 0.7
             g = 0.1
             v = 0.2
@@ -665,14 +662,27 @@ class Measure(object):
                    {'Name' : "a", 'Unit': "-", 'Value': a},
                    {'Name' : "g", 'Unit': "-", 'Value': g},
                    {'Name' : "v", 'Unit': "-", 'Value': v}]
+        area = 0
+        e = 0
+        # calculating the area that produces runoff
+        au = 0
+        vp = 0
+        for x in surfaces:
+            au += surfaces.Au[0]
+            vp += surfaces.Vp[0]
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Drainage', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
-
     
     #%% Berechnungsansatz B.2: Flächenversickerung
     # Surface infiltration
-    def surf_infiltration(self):
+    def surf_infiltration(self,  kf, fasf="fasf_standard"):
         '''
         Calculates water balance components for surface infiltration
         
@@ -702,7 +712,7 @@ class Measure(object):
           FAsf : 66394*kf*exp(-1.197) - 70910*kf*exp(-1.117) (%)
           
         Standard values are:
-          FAsf_standard = 94741*kf*exp(-1.195)
+          fasf_standard = 94741*kf*exp(-1.195)
               
         Returns
         -------
@@ -711,16 +721,16 @@ class Measure(object):
         
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.kf, 'kf_surf_infiltration') 
+        validRange(kf, 'kf_surf_infiltration') 
         
-        if (self.fasf == "FAsf_standard"):
-            self.fasf = 94741*self.kf**(-1.195)
-            self.fasf = 94741*self.kf**(-1.195)
+        if (fasf == "fasf_standard"):
+            fasf = 94741*kf**(-1.195)
+            fasf = 94741*kf**(-1.195)
             
-        a = 0.004264 + 0.001121*np.log(self.p) - 0.002757*np.log(self.fasf)
+        a = 0.004264 + 0.001121*np.log(self.p) - 0.002757*np.log(fasf)
         # g = (0.6207904 + 0.0899322*np.log(self.p) - 0.0001152*self.etp
         #      - 0.0719723*np.log(self.fasf))
-        v = 0.3999 - 0.09317*np.log(self.p) + 0.00009746*self.etp + 0.07474*np.log(self.fasf)
+        v = 0.3999 - 0.09317*np.log(self.p) + 0.00009746*self.etp + 0.07474*np.log(fasf)
         g = max((1 - (a + v)), 0.0)
         results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
                    {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
@@ -733,7 +743,7 @@ class Measure(object):
        
     #%% Berechnungsansatz B.3: Versickerungsmulden
     # Infiltration swale
-    def infilt_swale(self):
+    def infilt_swale(self, kf, fasm="fasm_standard"):
         '''
         Calculates water balance components for infiltration swales
         
@@ -772,14 +782,14 @@ class Measure(object):
     
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        # validRange(self.kf, 'kf_infilt_swale') 
+        # validRange(kf, 'kf_infilt_swale') 
         
-        if (self.fasm == "FAsm_standard"):
-            self.fasm = 42.323*self.kf**(-0.314)       
+        if (fasm == "fasm_standard"):
+            fasm = 42.323*kf**(-0.314)       
         
-        g = (0.8608 + 0.02385*np.log(self.p) - 0.00005331*self.etp - 0.002827*self.fasm
-              - 0.000002493*self.kf + 0.0009514*np.log(self.kf/self.fasm))
-        v = 0.000008562*self.etp + (2.611/(self.p-64.35))*self.fasm**0.9425 - 0.000001211*self.kf
+        g = (0.8608 + 0.02385*np.log(self.p) - 0.00005331*self.etp - 0.002827*fasm
+              - 0.000002493*kf + 0.0009514*np.log(kf/fasm))
+        v = 0.000008562*self.etp + (2.611/(self.p-64.35))*fasm**0.9425 - 0.000001211*kf
         # a = 1 - g - v
         # To force positive values or zero
         a = max((1 - (g + v)), 0.0)
@@ -794,7 +804,7 @@ class Measure(object):
         
     #%% Berechnungsansatz B.4: Mulden-Rigolen-Elemente
     # Swale-trench element
-    def swale_trench(self):
+    def swale_trench(self, kf, fasm="fasm_standard"):
         '''
         Calculates water balance components for swale-trench elements
         
@@ -833,16 +843,16 @@ class Measure(object):
     
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.kf, 'kf_swale_trench')
+        validRange(kf, 'kf_swale_trench')
         
-        if (self.fasm == "FAsm_standard"):
-            self.fasm = 21.86*self.kf**(-0.348)
+        if (fasm == "fasm_standard"):
+            fasm = 21.86*kf**(-0.348)
             
-        a = (-0.03867 + 0.007684*np.log(self.p) + 0.000003201*self.fasm + 0.0002564*self.kf
-             - 0.0001187*self.fasm*self.kf + 0.004161*np.log(self.kf/self.fasm))
+        a = (-0.03867 + 0.007684*np.log(self.p) + 0.000003201*fasm + 0.0002564*kf
+             - 0.0001187*fasm*kf + 0.004161*np.log(kf/fasm))
         # g = (0.8803 + 0.01866*np.log(self.p) - 0.00004867*self.etp
-        #      - 0.001997*self.fasm + 0.0002365*self.kf)
-        v = 0.000008879*self.etp + (2.528/(self.p-81.65))*self.fasm**0.9496 - 0.00007768*self.kf
+        #      - 0.001997*fasm + 0.0002365*kf)
+        v = 0.000008879*self.etp + (2.528/(self.p-81.65))*fasm**0.9496 - 0.00007768*kf
         g = max((1 - (a + v)), 0.0)
         results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
                    {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
@@ -855,7 +865,7 @@ class Measure(object):
     
     #%% Berechnungsansatz B.5: Mulden-Rigolen-Systeme
     # Swale-trench system
-    def swale_trench_system(self):
+    def swale_trench_system(self, qdr, kf, fasm="fasm_standard"):
         '''
         Calculates water balance components for swale-trench elements
         
@@ -898,19 +908,19 @@ class Measure(object):
     
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.qdr, 'qDr_swale_trench_system')
-        validRange(self.kf, 'kf_swale_trench_system')
+        validRange(qdr, 'qDr_swale_trench_system')
+        validRange(kf, 'kf_swale_trench_system')
         
         
-        if (self.fasm == "FAsm_standard"):
-            self.fasm = 11.79 - 3.14*np.log(self.qdr) - 0.18594*self.kf
+        if (fasm == "fasm_standard"):
+            fasm = 11.79 - 3.14*np.log(qdr) - 0.18594*kf
             
-        a = (0.8112 + 0.0003473*self.p - 0.00001845*self.etp - 0.04793*self.fasm
-              + 0.0007481*self.qdr - 0.4389*np.log(self.kf + 1))
+        a = (0.8112 + 0.0003473*self.p - 0.00001845*self.etp - 0.04793*fasm
+              + 0.0007481*qdr - 0.4389*np.log(kf + 1))
         # g = (1.669 - 0.3005*np.log(self.p) - 0.00006933*self.etp
-        #       + 0.3044*np.log(self.fasm) + 0.4581*np.log(self.kf + 1))
-        v = (0.1428 - 0.02661*np.log(self.p) + 0.00005668*self.etp + 0.0288*np.log(self.fasm)
-              - 0.0001825*self.qdr - 0.01823*np.log(self.kf + 1))
+        #       + 0.3044*np.log(fasm) + 0.4581*np.log(kf + 1))
+        v = (0.1428 - 0.02661*np.log(self.p) + 0.00005668*self.etp + 0.0288*np.log(fasm)
+              - 0.0001825*qdr - 0.01823*np.log(kf + 1))
         g = max((1 - (a + v)), 0.0)
         results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
                    {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
@@ -923,7 +933,7 @@ class Measure(object):
     
     #%% Berechnungsansatz B.6: Anlagen zur Niederschlagswassernutzung
     # Rainwater usage
-    def rainwater_usage(self):
+    def rainwater_usage(self, FAbw=2, qBw=60):
         '''
         Calculates water balance components for rainwater usage
         
@@ -1008,7 +1018,8 @@ class Measure(object):
     #%% Berechnungsansatz B.7: Wasserfläche mit Dauerstau
     #### Water surface with permanent storage  
     # Pond system with inflow from paved areas
-    def pod_system(self):
+    def pod_system(self, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
+               A_4= 0, a_4= 0.0):
         '''
         Calculates water balance components for rainwater usage
         
