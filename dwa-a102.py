@@ -30,14 +30,14 @@ class Surface(object):
                    
     def __str__(self):
         return (
-            f"Surface located in {self.location}, precipitation of {self.p} mm/a,"
+            f"Surface with precipitation of {self.p} mm/a,"
             f" and potential evapotranspiration of {self.etp} mm/a"
             )
 
 #%% Berechnungsansatz A.2: Steildach Steildächer (alle Materialien), 
 #### Flachdach (glatte Materialien) 
 
-    def roof(self):
+    def roof(self, area, sp=0.3):
         '''
         Calculates water balance components for steep roofs (all materials)
         or flat roofs made with smooth materials (e.g. glass, metal)
@@ -70,36 +70,35 @@ class Surface(object):
         Returns
         -------
         results : DataFrame    
-        '''
-        # if user forgot to introduce sp, use the standard value
-        if (self.sp == 0):
-            self.sp = 0.3
-    
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
-        validRange(self.sp, 'Sp_roof')
+        '''    
+        # validRange(self.p, 'P')
+        # validRange(self.etp, 'ETp')
+        validRange(sp, 'Sp_roof')
         
         a = (0.9115 + 0.00007063*self.p - 0.000007498*self.etp
-             - 0.2063*np.log(self.sp + 1))
+             - 0.2063*np.log(sp + 1))
         g = 0
         v = 1-a-g
+        e = 0
         # pfractions = (a, g, v)
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]
+        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
+        # results.Value = results.round(3)
         return(results)
     
     #%% Berechnungsansatz A.3: Flachdächer (raue Materialien, Kies), Asphalt,
     #### fugenloser Beton,Pflaster mit dichten Fugen
      
-    def flat_roof(self):
+    def flat_area(self, area, sp=1):
         '''
-        Calculates water balance components for flat roofs
+        Calculates water balance components for flat roofs, asphalt, 
+        jointless concrete, paving with tight joints.
         
         Parameters
         ----------
@@ -131,34 +130,30 @@ class Surface(object):
         Returns
         -------
         results : DataFrame   
-        ''' 
-        # if user forgot to introduce sp, use the standard value
-        if (self.sp == 0):
-            self.sp = 1
-    
+        '''    
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.sp, 'Sp_flat_roof') 
+        validRange(sp, 'Sp_flat_area') 
         
         a = (0.8658 + 0.0001659*self.p - 0.00009945*self.etp
-             - 0.1542*np.log(self.sp + 1))
+             - 0.1542*np.log(sp + 1))
         g = 0
         v = 1-a-g
-  
+        e = 0
         # pfractions = (a, g, v)
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]
+        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
+        # results.Value = results.round(3)
         return(results)
     
-    #%% Berechnungsansatz A.4: Gründächer
-    
-    def green_roof(self):
+    #%% Berechnungsansatz A.4: Gründächer    
+    def green_roof(self, area, h, kf=70, wkmax_wp=0.5):
         '''
         Calculates water balance components for green roofs
         
@@ -198,31 +193,31 @@ class Surface(object):
         Returns
         -------
         results : DataFrame 
-        '''
-        
+        '''       
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.h, 'h_green_roof')
-        validRange(self.kf, 'kf_green_roof')
-        validRange(self.wkmax_wp, 'WKmax_WP_green_roof')
+        validRange(h, 'h_green_roof')
+        validRange(kf, 'kf_green_roof')
+        validRange(wkmax_wp, 'WKmax_WP_green_roof')
         
         a = (-2.182 + 0.4293*np.log(self.p) - 0.0001092*self.p + (236.1/self.etp)
-             + 0.0001142*self.h + 0.0002297*self.kf + 0.01628*np.log(self.wkmax_wp)
-              - 0.1214*np.log(self.wkmax_wp*self.h))
+             + 0.0001142*h + 0.0002297*kf + 0.01628*np.log(wkmax_wp)
+              - 0.1214*np.log(wkmax_wp*h))
         g = 0
         v = 1-a-g
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
     
     #%% Berechnungsansatz A.5: Einstaudächer
-    def storage_roof(self):
+    def storage_roof(self, area, sp=5):
         '''
         Calculates water balance components for storage roofs
         
@@ -256,25 +251,26 @@ class Surface(object):
         '''
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.sp, 'Sp_storage_roof') 
+        validRange(sp, 'Sp_storage_roof') 
         
-        a = 0.9231 + 0.000254*self.p - 0.0003226*self.etp - 0.1472*np.log(self.sp+1)
+        a = 0.9231 + 0.000254*self.p - 0.0003226*self.etp - 0.1472*np.log(sp+1)
         g = 0
         v = 1-a-g 
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
         
     #%% Berechnungsansatz A.6 & A.7: Teildurchlässige Flächenbeläge
     ### (Fugenanteil 2 % bis 10 %)
     # Partially permeable surfaces (Joint ratio 2 % to 10 %)
-    def permeable_surface(self):
+    def permeable_surface(self, area, fa, kf, sp=1, wkmax_wp=0.15):
         '''
         Calculates water balance components for permeable surfaces
         
@@ -325,14 +321,14 @@ class Surface(object):
     ### Berechnungsansatz A.6: Teildurchlässige Flächenbeläge
     ### (Fugenanteil 2 % bis 5 %)
     # Partially permeable surfaces (Joint ratio 2 % to 5 %)   
-        if (self.fa >= 2 and self.fa <= 5):
-            a = (0.0800734*np.log(self.p) - 0.0582828*self.fa - 0.0501693*self.sp
-                  - 0.385767*self.wkmax_wp + (8.7040284/(11.9086896 + self.kf)))
+        if (fa >= 2 and fa <= 5):
+            a = (0.0800734*np.log(self.p) - 0.0582828*fa - 0.0501693*sp
+                  - 0.385767*wkmax_wp + (8.7040284/(11.9086896 + kf)))
             # DWA-a-102 2020 equation:
-            # g = (-0.2006 - 0.000253*self.etp + 0.05615*self.fa - 0.0636*np.log(1 + self.sp)
-            #      + 0.1596*np.log(1 + self.kf) + 0.2778*(WKmax - WP))
-            v = (0.8529 - 0.1248*np.log(self.p) + 0.00005057*self.etp + 0.002372*self.fa
-                  + 0.1583*np.log(1 + self.sp))
+            # g = (-0.2006 - 0.000253*self.etp + 0.05615*fa - 0.0636*np.log(1 + sp)
+            #      + 0.1596*np.log(1 + kf) + 0.2778*(wkmax_wp))
+            v = (0.8529 - 0.1248*np.log(self.p) + 0.00005057*self.etp + 0.002372*fa
+                  + 0.1583*np.log(1 + sp))
             # To fullfill the conservation mass (a+g+v=1). My decision is to apply:
             g = 1-a-v
     
@@ -340,24 +336,25 @@ class Surface(object):
     ### (Fugenanteil 6 % bis 10 %)
     # Partially permeable surfaces (Joint ratio 6 % to 10 %)
     # This funtion can be joint with the previous one and add the param "slope"     
-        if (self.fa >= 6 and self.fa <= 10):
-            a = (0.05912*np.log(self.p) - 0.02749*self.fa - 0.03671*self.sp
-                  - 0.30514*self.wkmax_wp + (4.97687/(4.7975 + self.kf)))
+        if (fa >= 6 and fa <= 10):
+            a = (0.05912*np.log(self.p) - 0.02749*fa - 0.03671*sp
+                  - 0.30514*wkmax_wp + (4.97687/(4.7975 + kf)))
             # DWA-a-102 2020 equation:
-            # g = (0.00004941*P - 0.0002817*self.etp + 0.02566*self.fa - 0.03823*self.sp
+            # g = (0.00004941*P - 0.0002817*self.etp + 0.02566*fa - 0.03823*sp
             #      + 0.691*np.exp(-6.465/kf))
-            v = (0.9012 - 0.1325*np.log(self.p) + 0.00006661*self.etp + 0.002302*self.fa
-                  + 0.1489*np.log(1 + self.sp))
+            v = (0.9012 - 0.1325*np.log(self.p) + 0.00006661*self.etp + 0.002302*fa
+                  + 0.1489*np.log(1 + sp))
             g = 1 - (a + v)
      
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
         
     #%% Berechnungsansatz A.8: Teildurchlässige Flächenbeläge 
@@ -365,7 +362,7 @@ class Surface(object):
     # Partially permeable surfaces
     # (pore stones, seepage stones), gravel surface, gravel lawn
     
-    def porous_surface(self):
+    def porous_surface(self, area, sp=3.5, h=100, kf=180):
         '''
         Calculates water balance components for porous surfaces 
         (porous and percolating stones, gravel lawn)    
@@ -411,31 +408,32 @@ class Surface(object):
     
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.sp, 'Sp_porous_surface')
-        validRange(self.h, 'h_porous_surface')
-        validRange(self.kf, 'kf_porous_surface')
+        validRange(sp, 'Sp_porous_surface')
+        validRange(h, 'h_porous_surface')
+        validRange(kf, 'kf_porous_surface')
     
-        a = (0.000001969*self.p - 0.005116*np.log(self.sp) - 0.0001051*self.h
-              + 0.01753*np.exp(4.576/self.kf))
-        # g = (0.2468883*np.log(self.p) - 0.0003938*self.etp + 0.0017083*self.sp
-        #      - 0.0015998*h - 0.6703502*np.exp(0.1122885/self.kf))
+        a = (0.000001969*self.p - 0.005116*np.log(sp) - 0.0001051*h
+              + 0.01753*np.exp(4.576/kf))
+        # g = (0.2468883*np.log(self.p) - 0.0003938*self.etp + 0.0017083*sp
+        #      - 0.0015998*h - 0.6703502*np.exp(0.1122885/kf))
         v = (0.2111 - 0.2544*np.log(self.p) + 0.2073*np.log(self.etp)
-              + 0.0006249*self.sp + 0.123*np.log(self.h) - 0.000002806*self.kf)
+              + 0.0006249*sp + 0.123*np.log(h) - 0.000002806*kf)
         g = max((1 - (a + v)), 0.0) 
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
         
     #%% Berechnungsansatz A.9: Rasengittersteine
     # Paver stone grids / Grass pavers
     
-    def paver_stonegrid(self):
+    def paver_stonegrid(self, area, fa=25, sp=1, wkmax_wp=0.15):
         '''
         Calculates water balance components for paver stone grids
         
@@ -480,33 +478,34 @@ class Surface(object):
      
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.fa, 'FA_paver_stonegrid')
-        validRange(self.sp, 'Sp_paver_stonegrid')
-        validRange(self.wkmax_wp, 'WKmax_WP_paver_stonegrid') 
+        validRange(fa, 'FA_paver_stonegrid')
+        validRange(sp, 'Sp_paver_stonegrid')
+        validRange(wkmax_wp, 'WKmax_WP_paver_stonegrid') 
     
-        a = (0.145704 - 0.059177*np.log(self.fa) - 0.007354*self.sp
-              - 0.050531*np.log(self.wkmax_wp))
+        a = (0.145704 - 0.059177*np.log(fa) - 0.007354*sp
+              - 0.050531*np.log(wkmax_wp))
         # g = (- 0.02927 + 0.1483*np.log(self.p) - 0.000269*self.etp
-        #      - 0.09913*np.log(1 + self.sp) + 0.05222*(WKmax - WP))
+        #      - 0.09913*np.log(1 + sp) + 0.05222*(wkmax_wp))
         v = (1.106 - 0.1625*np.log(self.p) + 0.0001282*self.etp
-              + 0.1131*np.log(1 + self.sp) + 0.2848*self.wkmax_wp)
+              + 0.1131*np.log(1 + sp) + 0.2848*wkmax_wp)
         g = max((1 - (a + v)), 0.0)
 
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
         
     #%% Berechnungsansatz A.10: Deckschichten ohne Bindemittel (wassergebundene Decke) 
     # Wassergebundene Decke, offiziell Deckschicht ohne Bindemittel (Kürzel: DoB)
     # gravel ground cover
     
-    def gravel_cover(self):
+    def gravel_cover(self, area, h=100, sp=3.5, kf=1.8):
         '''
         Calculates water balance components for gravel covers or surfaces
         
@@ -551,25 +550,25 @@ class Surface(object):
     
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.h, 'h_gravel_cover')
-        validRange(self.sp, 'Sp_gravel_cover')
-        validRange(self.kf, 'kf_gravel_cover')     
+        validRange(h, 'h_gravel_cover')
+        validRange(sp, 'Sp_gravel_cover')
+        validRange(kf, 'kf_gravel_cover')     
         
-        a = 0.00004517*self.p - 0.03454*np.log(self.sp) + (0.1958/(0.2873 + self.kf))
-        # g = (0.19761*np.log(self.p) - 0.000506*self.etp + 0.016372*self.sp - 0.001618*h
-        #      - 0.327742*np.exp(0.346808/self.kf))
+        a = 0.00004517*self.p - 0.03454*np.log(sp) + (0.1958/(0.2873 + kf))
+        # g = (0.19761*np.log(self.p) - 0.000506*self.etp + 0.016372*sp - 0.001618*h
+        #      - 0.327742*np.exp(0.346808/kf))
         v = (0.2111 - 0.2544*np.log(self.p) + 0.2073*np.log(self.etp)
-              + 0.0006249*self.sp + 0.123*np.log(self.h) - 0.000002806*self.kf)
+              + 0.0006249*sp + 0.123*np.log(h) - 0.000002806*kf)
         g = max((1 - (a + v)), 0.0)
-
-        results = [{'Name' : "Area", 'Unit': "m2", 'Value': self.area},
-                   {'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
+                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
         return(results)
 
         
