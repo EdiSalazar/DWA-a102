@@ -9,7 +9,7 @@ param_rages = {
     'P': [500, 1700, 'Precipitation (p)', 'mm/a'], 
     'ETp' :[450, 700, 'Evapotranspiration (etp)', 'mm/a'], 
     'Sp_roof': [0.1, 0.6, 'Storage height (sp)', 'mm/a'],
-    'Sp_flat_roof': [0.6, 3, 'Storage height (sp)', 'mm'],
+    'Sp_flat_area': [0.6, 3, 'Storage height (sp)', 'mm'],
     'h_green_roof': [40, 500, 'Installation height (h)', 'mm'],
     'kf_green_roof': [18, 100, 'Hydraulic conductivity (kf)', 'mm/h'],
     'WKmax_WP_green_roof': [0.35, 0.65, 'Difference (wkmax_wp)', ''],
