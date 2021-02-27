@@ -10,32 +10,9 @@ import pandas as pd
 from check_ranges import validRange
 from climate import climate
 
-
-#%% Starting class Surface
-class StudyArea(object):
-    def __init__(self, p=800, etp=500, location=None):
-        self.location = location        
-        if self.location:
-            p, etp = climate(self.location)
-            self.p = p
-            self.etp = etp
-        else:
-            self.p = p
-            self.etp = etp
-
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
-                   
-    def __str__(self):
-        return (
-            f"Study area has a precipitation of {self.p} mm/a,"
-            f" and potential evapotranspiration of {self.etp} mm/a"
-            )
-
-
 #%% Starting class Surface
 
-class Surface(StudyArea):
+class Surface(object):
     # def __init__(self, p=800, etp=500, location=None):
     #     self.location = location        
     #     if self.location:
@@ -105,9 +82,11 @@ class Surface(StudyArea):
         results = [{'Element' : 'Roof', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]
         
         results = pd.DataFrame(results)
         # results.Value = results.round(3)
@@ -162,12 +141,14 @@ class Surface(StudyArea):
         v = 1-a-g
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Flat area', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]
         
         results = pd.DataFrame(results)
         # results.Value = results.round(3)
@@ -228,12 +209,14 @@ class Surface(StudyArea):
         v = 1-a-g
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Green foof', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}] 
         results = pd.DataFrame(results)
         return(results)
     
@@ -279,12 +262,14 @@ class Surface(StudyArea):
         v = 1-a-g 
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Storage roof', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]    
         results = pd.DataFrame(results)
         return(results)
         
@@ -369,12 +354,14 @@ class Surface(StudyArea):
      
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Permeable surface', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]     
         results = pd.DataFrame(results)
         return(results)
         
@@ -442,12 +429,14 @@ class Surface(StudyArea):
         g = max((1 - (a + v)), 0.0) 
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Porous surface', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]     
         results = pd.DataFrame(results)
         return(results)
         
@@ -513,12 +502,14 @@ class Surface(StudyArea):
 
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Paver stone-grid', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]       
         results = pd.DataFrame(results)
         return(results)
         
@@ -582,17 +573,19 @@ class Surface(StudyArea):
         g = max((1 - (a + v)), 0.0)
         e = 0
         # pfractions = (a, g, v)
-        results = [{'Element' : 'Roof', 'Area' : round(area, 3),
+        results = [{'Element' : 'Gravel cover', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]       
         results = pd.DataFrame(results)
         return(results)
         
     #%% New class Measure
-class Measure(StudyArea):
+class Measure(object):
     # def __init__(self, *surfaces):
     #     # self.surfaces: surfaces
     #     pass
@@ -683,10 +676,11 @@ class Measure(StudyArea):
         results = [{'Element' : 'Drainage', 'Area' : round(area, 3),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round((area*self.p + va)*a),
-                    'Vg' : round((area*self.p + va)*g),
-                    'Vv' : round((area*self.p + va)*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]      
         results = pd.DataFrame(results)
         return(pd.concat([previous_results, results]))
     
@@ -766,19 +760,20 @@ class Measure(StudyArea):
 
         area = au*(fasf/100)
 
-        results = [{'Element' : 'Surf. infiltration', 'Area' : round(area, 3),
+        results = [{'Element' : 'Surf. infilt.', 'Area' : round(area, 3),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round((area*self.p + va)*a),
-                    'Vg' : round((area*self.p + va)*g),
-                    'Vv' : round((area*self.p + va)*v), 'Ve' : round(area*self.p*e)}]        
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]       
         results = pd.DataFrame(results)
         return(pd.concat([previous_results, results]))
        
     #%% Berechnungsansatz B.3: Versickerungsmulden
     # Infiltration swale
-    def infilt_swale(self, kf, fasm="fasm_standard"):
+    def infilt_swale(self, kf, fasm="fasm_standard", *surfaces):
         '''
         Calculates water balance components for infiltration swales
         
@@ -796,7 +791,7 @@ class Measure(StudyArea):
         kf : float 
            hydraulic conductivity (mm /h)
            
-        FAsf : float
+        FAsm : float
             percentage of infiltration area (%)
                             
         Notes    
@@ -828,18 +823,43 @@ class Measure(StudyArea):
         # a = 1 - g - v
         # To force positive values or zero
         a = max((1 - (g + v)), 0.0)
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
-        results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
-        return(results)
+        e = 0
         
+        # calculating the area that produces runoff and volume of runoff
+        au = 0
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure, Va = 0
+        previous_results.Va = 0                      
+
+        area = au*(fasm/100)
+
+        results = [{'Element' : 'Infilt. swale', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]        
+        results = pd.DataFrame(results)
+        return(pd.concat([previous_results, results]))
     #%% Berechnungsansatz B.4: Mulden-Rigolen-Elemente
     # Swale-trench element
-    def swale_trench(self, kf, fasm="fasm_standard"):
+    def swale_trench(self, kf, fasm="fasm_standard", *surfaces):
         '''
         Calculates water balance components for swale-trench elements
         
@@ -857,7 +877,7 @@ class Measure(StudyArea):
         kf : float 
            hydraulic conductivity (mm /h)
            
-        FAsf : float
+        FAsm : float
             percentage of infiltration area (%)
                             
         Notes    
@@ -889,18 +909,44 @@ class Measure(StudyArea):
         #      - 0.001997*fasm + 0.0002365*kf)
         v = 0.000008879*self.etp + (2.528/(self.p-81.65))*fasm**0.9496 - 0.00007768*kf
         g = max((1 - (a + v)), 0.0)
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        
+        # calculating the area that produces runoff and volume of runoff
+        au = 0
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure, Va = 0
+        previous_results.Va = 0                      
+
+        area = au*(fasm/100)
+
+        results = [{'Element' : 'Swale trench', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]   
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
-        return(results)
+        return(pd.concat([previous_results, results]))
     
     #%% Berechnungsansatz B.5: Mulden-Rigolen-Systeme
     # Swale-trench system
-    def swale_trench_system(self, qdr, kf, fasm="fasm_standard"):
+    def swale_trench_system(self, qdr, kf, fasm="fasm_standard", *surfaces):
         '''
         Calculates water balance components for swale-trench elements
         
@@ -957,18 +1003,44 @@ class Measure(StudyArea):
         v = (0.1428 - 0.02661*np.log(self.p) + 0.00005668*self.etp + 0.0288*np.log(fasm)
               - 0.0001825*qdr - 0.01823*np.log(kf + 1))
         g = max((1 - (a + v)), 0.0)
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        
+        # calculating the area that produces runoff and volume of runoff
+        au = 0
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure, Va = 0
+        previous_results.Va = 0                      
+
+        area = au*(fasm/100)
+
+        results = [{'Element' : 'Swale trench system', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
-        return(results)
+        return(pd.concat([previous_results, results]))
     
     #%% Berechnungsansatz B.6: Anlagen zur Niederschlagswassernutzung
     # Rainwater usage
-    def rainwater_usage(self, FAbw=2, qBw=60):
+    def rainwater_usage(self, vsp, vbr, fabw=2, qbw=60, *surfaces):
         '''
         Calculates water balance components for rainwater usage
         
@@ -1018,43 +1090,66 @@ class Measure(StudyArea):
         
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.vsp, 'VSp_rainwater_usage')
-        validRange(self.vbr, 'VBr_rainwater_usage')
-        validRange(self.fabw, 'FAbw_rainwater_usage')
-        # validRange(self.qbw, 'qBw_rainwater_usage')
+        validRange(vsp, 'VSp_rainwater_usage')
+        validRange(vbr, 'VBr_rainwater_usage')
+        validRange(fabw, 'FAbw_rainwater_usage')
+        validRange(qbw, 'qBw_rainwater_usage')
         
         
-        VBw = self.fabw*self.qbw
-        Vnmin = min(self.p, 365*self.vbr + VBw)
+        VBw = fabw*qbw
+        Vnmin = min(self.p, 365*vbr + VBw)
         if VBw == 0:
             v = 0
         else:
             v = (- 0.0001927*self.p + 0.0001831*self.etp + 0.0006083*VBw
-                 - 0.0000003127*VBw**2 - 0.3092*np.exp(3.269/self.vsp)
-                 + (1.424/(2.782 + self.vbr)) + 0.0001885*Vnmin)
-        if self.vbr == 0:
+                 - 0.0000003127*VBw**2 - 0.3092*np.exp(3.269/vsp)
+                 + (1.424/(2.782 + vbr)) + 0.0001885*Vnmin)
+        if vbr == 0:
             e = 0
         else:
-            e = (0.4451 - 0.0003529*self.p - 0.00007728*self.etp + 0.06821*np.log10(self.vsp)
-                 - 0.0002507*VBw + 0.2349*np.log10(self.vbr) + 0.0001738*Vnmin)
+            e = (0.4451 - 0.0003529*self.p - 0.00007728*self.etp + 0.06821*np.log10(vsp)
+                 - 0.0002507*VBw + 0.2349*np.log10(vbr) + 0.0001738*Vnmin)
         a = max((1 - (v + e)), 0.0)
         g = 0.0
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v},
-                   {'Name' : "e", 'Unit': "-", 'Value': e}]
+        
+        # calculating the area that produces runoff and volume of runoff
+        au = 0
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure, Va = 0
+        previous_results.Va = 0                      
+
+        area = 0
+
+        results = [{'Element' : 'Rainwater usage', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
-        return(results)
-    
+        return(pd.concat([previous_results, results]))
     
     #%% Berechnungsansatz B.7: Wasserfläche mit Dauerstau
     #### Water surface with permanent storage  
     # Pond system with inflow from paved areas
-    def pod_system(self, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
-               A_4= 0, a_4= 0.0):
+    def pod_system(self, aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
+               A_4= 0, a_4= 0.0, *surfaces):
         '''
         Calculates water balance components for rainwater usage
         
@@ -1093,20 +1188,67 @@ class Measure(StudyArea):
         
         validRange(self.p, 'P')
         validRange(self.etp, 'ETp')
-        validRange(self.a_1, 'a_1_pod_system')
-        validRange(self.a_2, 'a_2_pod_system')
-        validRange(self.a_3, 'a_1_pod_system')
-        validRange(self.a_4, 'a_1_pod_system')
+        validRange(a_1, 'a_1_pod_system')
+        validRange(a_2, 'a_2_pod_system')
+        validRange(a_3, 'a_1_pod_system')
+        validRange(a_4, 'a_1_pod_system')
         
-        v = ((self.etp*self.aw)/(self.p*(self.aw + self.A_1*self.a_1 + self.A_2*self.a_2
-                                    + self.A_3*self.a_3 + self.A_4*self.a_4)))
+        v = ((self.etp*aw)/(self.p*(aw + A_1*a_1 + A_2*a_2
+                                    + A_3*a_3 + A_4*a_4)))
         a = 1 - v
         g = 0
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        e = 0
+        # calculating the area that produces runoff and volume of runoff
+        au = 0
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure, Va = 0
+        previous_results.Va = 0                      
+
+        area = 0
+
+        results = [{'Element' : 'Rainwater usage', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round((area*self.p/1000 + va)*a),
+                    'Vg' : round((area*self.p/1000 + va)*g),
+                    'Vv' : round((area*self.p/1000 + va)*v),
+                    'Ve' : round((area*self.p/1000 + va)*e)}]
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
-        return(results)
+        return(pd.concat([previous_results, results]))
+
+
+#%% Starting class Surface
+class StudyArea(Surface, Measure):
+    def __init__(self, p=800, etp=500, location=None):
+        self.location = location        
+        if self.location:
+            p, etp = climate(self.location)
+            self.p = p
+            self.etp = etp
+        else:
+            self.p = p
+            self.etp = etp
+
+        validRange(self.p, 'P')
+        validRange(self.etp, 'ETp')
+                   
+    def __str__(self):
+        return (
+            f"Study area has a precipitation of {self.p} mm/a,"
+            f" and potential evapotranspiration of {self.etp} mm/a"
+            )
