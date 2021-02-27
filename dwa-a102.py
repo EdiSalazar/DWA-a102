@@ -202,9 +202,9 @@ class Surface(object):
         validRange(kf, 'kf_green_roof')
         validRange(wkmax_wp, 'WKmax_WP_green_roof')
         
-        a = (-2.182 + 0.4293*np.log(self.p) - 0.0001092*self.p + (236.1/self.etp)
-             + 0.0001142*h + 0.0002297*kf + 0.01628*np.log(wkmax_wp)
-              - 0.1214*np.log(wkmax_wp*h))
+        a = (-2.182 + 0.4293*np.log(self.p) - 0.0001092*self.p
+             + (236.1/self.etp) + 0.0001142*h + 0.0002297*kf
+             + 0.01628*np.log(wkmax_wp) - 0.1214*np.log(wkmax_wp*h))
         g = 0
         v = 1-a-g
         e = 0
@@ -1228,6 +1228,7 @@ class Measure(object):
                     'Vg' : round((area*self.p/1000 + va)*g),
                     'Vv' : round((area*self.p/1000 + va)*v),
                     'Ve' : round((area*self.p/1000 + va)*e)}]
+        
         results = pd.DataFrame(results)
         return(pd.concat([previous_results, results]))
 
