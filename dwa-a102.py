@@ -657,32 +657,42 @@ class Measure(StudyArea):
             a = 0.7
             g = 0.1
             v = 0.2
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+
         area = 0
         e = 0
-        # calculating the area that produces runoff
+        # calculating the area that produces runoff and volume of runoff
         au = 0
-        vp = 0
-        for x in surfaces:
-            au += surfaces.Au[0]
-            vp += surfaces.Vp[0]
-        # pfractions = (a, g, v)
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure so, Va = 0
+        previous_results.Va = 0                      
+
         results = [{'Element' : 'Drainage', 'Area' : round(area, 3),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': area*self.p,
-                    'Va' : round(area*self.p*a), 'Vg' : round(area*self.p*g),
-                    'Vv' : round(area*self.p*v), 'Ve' : round(area*self.p*e)}]        
+                    'Va' : round((area*self.p + va)*a),
+                    'Vg' : round((area*self.p + va)*g),
+                    'Vv' : round((area*self.p + va)*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        return(results)
+        return(pd.concat([previous_results, results]))
     
     #%% Berechnungsansatz B.2: Flächenversickerung
     # Surface infiltration
-    def surf_infiltration(self,  kf, fasf="fasf_standard"):
+    def surf_infiltration(self,  kf, fasf="fasf_standard", *surfaces):
         '''
         Calculates water balance components for surface infiltration
         
@@ -731,15 +741,40 @@ class Measure(StudyArea):
         # g = (0.6207904 + 0.0899322*np.log(self.p) - 0.0001152*self.etp
         #      - 0.0719723*np.log(self.fasf))
         v = 0.3999 - 0.09317*np.log(self.p) + 0.00009746*self.etp + 0.07474*np.log(fasf)
-        g = max((1 - (a + v)), 0.0)
-        results = [{'Name' : "P", 'Unit': "mm/a", 'Value': self.p,},
-                   {'Name' : "ETp", 'Unit': "mm/a", 'Value': self.etp},
-                   {'Name' : "a", 'Unit': "-", 'Value': a},
-                   {'Name' : "g", 'Unit': "-", 'Value': g},
-                   {'Name' : "v", 'Unit': "-", 'Value': v}]
+        g = max((1 - (a + v)), 0.0)              
+        e = 0
+        
+        # calculating the area that produces runoff and volume of runoff
+        au = 0
+        va = 0
+        for df in surfaces:
+            au += df.Au[0]
+            va += df.Va[0]
+            
+        # A df with the previous results is required
+        previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
+                                                   'P', 'Etp','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+                
+        # Joinning previous dfs of results
+        for df in surfaces:
+            previous_results = pd.concat([previous_results, df])
+            
+        # Runoff volume are passed to measure, Va = 0
+        previous_results.Va = 0                      
+
+        area = au*(fasf/100)
+
+        results = [{'Element' : 'Surf. infiltration', 'Area' : round(area, 3),
+                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': area*self.p,
+                    'Va' : round((area*self.p + va)*a),
+                    'Vg' : round((area*self.p + va)*g),
+                    'Vv' : round((area*self.p + va)*v), 'Ve' : round(area*self.p*e)}]        
         results = pd.DataFrame(results)
-        results.Value = results.Value.round(3)
-        return(results)
+        return(pd.concat([previous_results, results]))
        
     #%% Berechnungsansatz B.3: Versickerungsmulden
     # Infiltration swale
