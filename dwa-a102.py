@@ -1253,3 +1253,55 @@ class StudyArea(Surface, Measure):
             f"Study area has a precipitation of {self.p} mm/a,"
             f" and potential evapotranspiration of {self.etp} mm/a"
             )
+
+def watbal(*study_areas):
+        '''
+        Calculates water balance for a system compund of the ouputs from
+        methods of StudyArea (Surfaces, Measures).
+        
+        Parameters
+        ----------
+        args : DataFrame 
+             outputs of methods from StudyArea (Surfaces, Measures)  
+                          
+        Returns
+        -------
+        results : DataFrame 
+        '''
+        df_layout = pd.DataFrame(columns = ['Element', 'Area','a', 'g', 'v', 
+                                                   'e', 'Vp', 'Va', 'Vg',
+                                                   'Vv', 'Ve'])
+        
+        area, vp, va, vg, vv, ve = 0, 0, 0, 0, 0, 0
+        for df in study_areas:
+            area += float(sum(df[:]['Area']))
+            vp += float(sum(df[:]['Vp']))
+            va += float(sum(df[:]['Va']))
+            vg += float(sum(df[:]['Vg']))
+            vv += float(sum(df[:]['Vv']))
+            ve += float(sum(df[:]['Ve']))
+        a = round(va/vp, 3)
+        g = round(vg/vp, 3)
+        v = round(vv/vp, 3)
+        e = round(ve/vp, 3)
+        
+        sys_results = [{'Element' : 'System', 'Area' : round(area),
+                    'a' : a, 'g' : g, 'v' : v, 'e' : e, 'Vp': round(vp),
+                    'Va' : round(va),'Vg' : round(vg),'Vv' : round(vv),
+                    'Ve' : round(ve)}]
+        
+        sys_results = pd.DataFrame(sys_results)
+        
+        sys_results = pd.concat([df_layout, *study_areas, sys_results],
+                                join= "inner")
+        
+        # this still need to be solved
+        # delete column e and ve if all column is zero
+        
+        if (False in (sys_results.e != 0)) == True:
+            sys_results.drop(columns = ["e"])
+            
+        if False in (sys_results.Ve != 0):
+            sys_results.drop(columns = ["Ve"])
+        
+        return(sys_results)
