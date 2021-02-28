@@ -657,8 +657,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -673,20 +673,20 @@ class Measure(object):
         # Runoff volume are passed to measure so, Va = 0
         previous_results.Va = 0                      
 
-        results = [{'Element' : 'Drainage', 'Area' : round(area, 3),
-                    'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
+        results = [{'Element' : 'Drainage', 'Area' : round(area),
+                    'Au' : au, 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
-                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
-                    'Va' : round((area*self.p/1000 + va)*a),
-                    'Vg' : round((area*self.p/1000 + va)*g),
-                    'Vv' : round((area*self.p/1000 + va)*v),
-                    'Ve' : round((area*self.p/1000 + va)*e)}]      
+                    'e' : round(e, 3), 'Vp': area*self.p/1000,
+                    'Va' : (area*self.p/1000 + va)*a,
+                    'Vg' : (area*self.p/1000 + va)*g,
+                    'Vv' : (area*self.p/1000 + va)*v,
+                    'Ve' : (area*self.p/1000 + va)*e}]      
         results = pd.DataFrame(results)
         return(pd.concat([previous_results, results]))
     
     #%% Berechnungsansatz B.2: Flächenversickerung
     # Surface infiltration
-    def surf_infiltration(self,  kf, fasf="fasf_standard", *surfaces):
+    def surf_infiltration(self,  kf, *surfaces, fasf="fasf_standard"):
         '''
         Calculates water balance components for surface infiltration
         
@@ -742,8 +742,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -760,20 +760,20 @@ class Measure(object):
 
         area = au*(fasf/100)
 
-        results = [{'Element' : 'Surf. infilt.', 'Area' : round(area, 3),
+        results = [{'Element' : 'Surface infilt.', 'Area' : round(area),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
                     'Va' : round((area*self.p/1000 + va)*a),
                     'Vg' : round((area*self.p/1000 + va)*g),
                     'Vv' : round((area*self.p/1000 + va)*v),
-                    'Ve' : round((area*self.p/1000 + va)*e)}]       
+                    'Ve' : round((area*self.p/1000 + va)*e)}]        
         results = pd.DataFrame(results)
         return(pd.concat([previous_results, results]))
        
     #%% Berechnungsansatz B.3: Versickerungsmulden
     # Infiltration swale
-    def infilt_swale(self, kf, fasm="fasm_standard", *surfaces):
+    def infilt_swale(self, kf, *surfaces, fasm="fasm_standard"):
         '''
         Calculates water balance components for infiltration swales
         
@@ -829,8 +829,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -847,7 +847,7 @@ class Measure(object):
 
         area = au*(fasm/100)
 
-        results = [{'Element' : 'Infilt. swale', 'Area' : round(area, 3),
+        results = [{'Element' : 'Infilt. swale', 'Area' : round(area),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
@@ -859,7 +859,7 @@ class Measure(object):
         return(pd.concat([previous_results, results]))
     #%% Berechnungsansatz B.4: Mulden-Rigolen-Elemente
     # Swale-trench element
-    def swale_trench(self, kf, fasm="fasm_standard", *surfaces):
+    def swale_trench(self, kf, *surfaces, fasm="fasm_standard"):
         '''
         Calculates water balance components for swale-trench elements
         
@@ -915,8 +915,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -933,7 +933,7 @@ class Measure(object):
 
         area = au*(fasm/100)
 
-        results = [{'Element' : 'Swale trench', 'Area' : round(area, 3),
+        results = [{'Element' : 'Swale trench', 'Area' : round(area),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
@@ -946,7 +946,7 @@ class Measure(object):
     
     #%% Berechnungsansatz B.5: Mulden-Rigolen-Systeme
     # Swale-trench system
-    def swale_trench_system(self, qdr, kf, fasm="fasm_standard", *surfaces):
+    def swale_trench_system(self, qdr, kf, *surfaces, fasm="fasm_standard"):
         '''
         Calculates water balance components for swale-trench elements
         
@@ -1009,8 +1009,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -1027,7 +1027,7 @@ class Measure(object):
 
         area = au*(fasm/100)
 
-        results = [{'Element' : 'Swale trench system', 'Area' : round(area, 3),
+        results = [{'Element' : 'Swale trench system', 'Area' : round(area),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
@@ -1040,7 +1040,7 @@ class Measure(object):
     
     #%% Berechnungsansatz B.6: Anlagen zur Niederschlagswassernutzung
     # Rainwater usage
-    def rainwater_usage(self, vsp, vbr, fabw=2, qbw=60, *surfaces):
+    def rainwater_usage(self, vsp, vbr, *surfaces, fabw=2, qbw=60):
         '''
         Calculates water balance components for rainwater usage
         
@@ -1116,8 +1116,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -1134,7 +1134,7 @@ class Measure(object):
 
         area = 0
 
-        results = [{'Element' : 'Rainwater usage', 'Area' : round(area, 3),
+        results = [{'Element' : 'Rainwater usage', 'Area' : round(area),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
@@ -1148,8 +1148,8 @@ class Measure(object):
     #%% Berechnungsansatz B.7: Wasserfläche mit Dauerstau
     #### Water surface with permanent storage  
     # Pond system with inflow from paved areas
-    def pod_system(self, aw, A_1, a_1, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
-               A_4= 0, a_4= 0.0, *surfaces):
+    def pod_system(self, aw, A_1, a_1, *surfaces, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
+               A_4= 0, a_4= 0.0):
         '''
         Calculates water balance components for rainwater usage
         
@@ -1202,8 +1202,8 @@ class Measure(object):
         au = 0
         va = 0
         for df in surfaces:
-            au += df.Au[0]
-            va += df.Va[0]
+            au += float(df[-1:]['Au'])
+            va += float(df[-1:]['Va'])
             
         # A df with the previous results is required
         previous_results = pd.DataFrame(columns = ['Element', 'Area', 'Au',
@@ -1220,7 +1220,7 @@ class Measure(object):
 
         area = 0
 
-        results = [{'Element' : 'Rainwater usage', 'Area' : round(area, 3),
+        results = [{'Element' : 'Rainwater usage', 'Area' : round(area),
                     'Au' : round(au), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
@@ -1298,10 +1298,8 @@ def watbal(*study_areas):
         # this still need to be solved
         # delete column e and ve if all column is zero
         
-        if (False in (sys_results.e != 0)) == True:
-            sys_results.drop(columns = ["e"])
-            
-        if False in (sys_results.Ve != 0):
-            sys_results.drop(columns = ["Ve"])
-        
+        if (True in (sys_results.e.values != 0)) == False:
+            sys_results = sys_results.drop(columns = ["e"])
+            sys_results = sys_results.drop(columns = ["Ve"])
+                    
         return(sys_results)
