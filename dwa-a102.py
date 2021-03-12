@@ -682,7 +682,7 @@ class Measure(object):
                     'Vv' : (area*self.p/1000 + va)*v,
                     'Ve' : (area*self.p/1000 + va)*e}]      
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
     
     #%% Berechnungsansatz B.2: Flächenversickerung
     # Surface infiltration
@@ -769,7 +769,7 @@ class Measure(object):
                     'Vv' : round((area*self.p/1000 + va)*v),
                     'Ve' : round((area*self.p/1000 + va)*e)}]        
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
        
     #%% Berechnungsansatz B.3: Versickerungsmulden
     # Infiltration swale
@@ -856,7 +856,7 @@ class Measure(object):
                     'Vv' : round((area*self.p/1000 + va)*v),
                     'Ve' : round((area*self.p/1000 + va)*e)}]        
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
     #%% Berechnungsansatz B.4: Mulden-Rigolen-Elemente
     # Swale-trench element
     def swale_trench(self, kf, *surfaces, fasm="fasm_standard"):
@@ -942,7 +942,7 @@ class Measure(object):
                     'Vv' : round((area*self.p/1000 + va)*v),
                     'Ve' : round((area*self.p/1000 + va)*e)}]   
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
     
     #%% Berechnungsansatz B.5: Mulden-Rigolen-Systeme
     # Swale-trench system
@@ -1036,7 +1036,7 @@ class Measure(object):
                     'Vv' : round((area*self.p/1000 + va)*v),
                     'Ve' : round((area*self.p/1000 + va)*e)}]
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
     
     #%% Berechnungsansatz B.6: Anlagen zur Niederschlagswassernutzung
     # Rainwater usage
@@ -1143,7 +1143,7 @@ class Measure(object):
                     'Vv' : round((area*self.p/1000 + va)*v),
                     'Ve' : round((area*self.p/1000 + va)*e)}]
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
     
     #%% Berechnungsansatz B.7: Wasserfläche mit Dauerstau
     #### Water surface with permanent storage  
@@ -1230,7 +1230,7 @@ class Measure(object):
                     'Ve' : round((area*self.p/1000 + va)*e)}]
         
         results = pd.DataFrame(results)
-        return(pd.concat([previous_results, results]))
+        return(pd.concat([previous_results, results], ignore_index=True))
 
 
 #%% Starting class Surface
