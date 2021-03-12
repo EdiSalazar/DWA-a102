@@ -32,7 +32,7 @@ param_rages = {
     'kf_swale_trench': [3.6, 36, 'Hydraulic conductivity (kf)', 'mm/h'],
     'qDr_swale_trench_system': [1, 10, 'Throttled discharge yield (qdr)'],
     'kf_swale_trench_system': [0.36, 3.6, 'Hydraulic conductivity (kf)', 'mm/h'],
-    'VSp_rainwater_usage': [10, 200, 'Hydraulic conductivity (kf)', 'mm'],
+    'VSp_rainwater_usage': [10, 200, 'Specific storage volume (vsp)', 'mm'],
     'VBr_rainwater_usage': [0, 5, 'Available water volume (vbr)', 'mm/d'],
     'FAbw_rainwater_usage': [0, 5, 'Proportion of irrigated area (fabw)', ''],
     'qBw_rainwater_usage': [0, 200, 'Specific annual requirement for irrigation (qbw)', 'l/(m^2*year)'],
