@@ -49,10 +49,10 @@ class Surface(object):
           partitioning factor for surface runoff (-)
           
         g : float
-            Partitioning factor for groundwater recharge (-)
+          Partitioning factor for groundwater recharge (-)
         
         v : float
-           partitioning factor for evapotranspiration (-)
+          partitioning factor for evapotranspiration (-)
            
         Notes    
         ------
