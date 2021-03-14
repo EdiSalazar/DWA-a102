@@ -32,6 +32,64 @@ class Surface(object):
             f" and potential evapotranspiration of {self.etp} mm/a"
             )
 
+
+#%% Berechnungsansatz: Grünflächen, Garten 
+#### unpaved or green areas or gardends
+
+    def garden(self, area, a=0.2, g=0.2, v=0.6):
+        '''
+        Calculates water balance components for green areas, gardens
+        
+        Parameters
+        ----------
+        Area : float
+             element area (m2)    
+        
+        a : float
+          partitioning factor for surface runoff (-)
+          
+        g : float
+            Partitioning factor for groundwater recharge (-)
+        
+        v : float
+           partitioning factor for evapotranspiration (-)
+           
+        Notes    
+        ------
+        Ranges of validity for the paremeters are:
+          a, g, v : 0 - 1
+          
+          a + g + v = 1.0
+          
+        Standard Sp-values are:
+          low terrain slope:    a = 0.1, g = 0.3, v = 0.6 
+          medium terrain slope: a = 0.2, g = 0.2, v = 0.6
+          steep terrain slope:  a = 0.3, g = 0.1, v = 0.6 
+        
+        Returns
+        -------
+        results : DataFrame    
+        '''    
+        # # validRange(self.p, 'P')
+        # # validRange(self.etp, 'ETp')
+        # validRange(sp, 'Sp_roof')
+        
+
+        e = 0
+        # pfractions = (a, g, v)
+        results = [{'Element' : 'Garten / green area', 'Area' : round(area, 3),
+                    'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
+                    'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
+                    'e' : round(e, 3), 'Vp': round(area*self.p/1000),
+                    'Va' : round(area*self.p*a/1000),
+                    'Vg' : round(area*self.p*g/1000),
+                    'Vv' : round(area*self.p*v/1000),
+                    'Ve' : round(area*self.p*e/1000)}]
+        
+        results = pd.DataFrame(results)
+        # results.Value = results.round(3)
+        return(results)
+
 #%% Berechnungsansatz A.2: Steildach Steildächer (alle Materialien), 
 #### Flachdach (glatte Materialien) 
 
@@ -1293,7 +1351,7 @@ def watbal(*study_areas):
         sys_results = pd.DataFrame(sys_results)
         
         sys_results = pd.concat([df_layout, *study_areas, sys_results],
-                                join= "inner")
+                                join= "inner", ignore_index=True)
         
         # this still need to be solved
         # delete column e and ve if all column is zero
