@@ -2,7 +2,7 @@
 """
 Created on Sun Feb 21 16:42:52 2021
 
-@author: Edi
+@author: Edwin Echeverri Salazar
 """
 
 import numpy as np
@@ -13,25 +13,13 @@ from climate import climate
 #%% Starting class Surface
 
 class Surface(object):
-    # def __init__(self, p=800, etp=500, location=None):
-    #     self.location = location        
-    #     if self.location:
-    #         p, etp = climate(self.location)
-    #         self.p = p
-    #         self.etp = etp
-    #     else:
-    #         self.p = p
-    #         self.etp = etp
-
-    #     validRange(self.p, 'P')
-    #     validRange(self.etp, 'ETp')
                
     def __str__(self):
         return (
-            f"Surface with precipitation of {self.p} mm/a,"
-            f" and potential evapotranspiration of {self.etp} mm/a"
+            "Class that contain the methods: garden(), roof(), flat_area(), "
+            "green_roof(), storage_roof(), permeable_surface(), porous_surface(), "
+            "paver_stonegrid(), and gravel_cover()"
             )
-
 
 #%% Berechnungsansatz: Grünflächen, Garten 
 #### unpaved or green areas or gardends
@@ -56,7 +44,7 @@ class Surface(object):
            
         Notes    
         ------
-        Ranges of validity for the paremeters are:
+        Ranges of validity for the parameters are:
           a, g, v : 0 - 1
           
           a + g + v = 1.0
@@ -70,13 +58,8 @@ class Surface(object):
         -------
         results : DataFrame    
         '''    
-        # # validRange(self.p, 'P')
-        # # validRange(self.etp, 'ETp')
-        # validRange(sp, 'Sp_roof')
-        
 
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Garten / green area', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -87,7 +70,6 @@ class Surface(object):
                     'Ve' : round(area*self.p*e/1000)}]
         
         results = pd.DataFrame(results)
-        # results.Value = results.round(3)
         return(results)
 
 #%% Berechnungsansatz A.2: Steildach Steildächer (alle Materialien), 
@@ -102,21 +84,13 @@ class Surface(object):
         ----------
         Area : float
              element area (m2)    
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-        
+               
         Sp : float
            storage height (mm)
            
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P: 500 - 1700 mm/a
-          ETp: 450 - 700 mm/a 
+        Ranges of validity for the parameters are:
           Sp: 0.1 - 0.6 mm
           
         Standard Sp-values are:
@@ -127,8 +101,6 @@ class Surface(object):
         -------
         results : DataFrame    
         '''    
-        # validRange(self.p, 'P')
-        # validRange(self.etp, 'ETp')
         validRange(sp, 'Sp_roof')
         
         a = (0.9115 + 0.00007063*self.p - 0.000007498*self.etp
@@ -136,7 +108,6 @@ class Surface(object):
         g = 0
         v = 1-a-g
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Roof', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -147,7 +118,6 @@ class Surface(object):
                     'Ve' : round(area*self.p*e/1000)}]
         
         results = pd.DataFrame(results)
-        # results.Value = results.round(3)
         return(results)
     
     #%% Berechnungsansatz A.3: Flachdächer (raue Materialien, Kies), Asphalt,
@@ -162,19 +132,13 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-        
+                
         Sp : float
             storage height (mm)
            
         Notes    
         ------
-        Ranges of validity for the paremeters are:
+        Ranges of validity for the parameters are:
           P : 500 - 1700 mm/a
           ETp : 450 - 700 mm/a 
           Sp : 0.6 - 3 mm
@@ -198,7 +162,6 @@ class Surface(object):
         g = 0
         v = 1-a-g
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Flat area', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -209,7 +172,6 @@ class Surface(object):
                     'Ve' : round(area*self.p*e/1000)}]
         
         results = pd.DataFrame(results)
-        # results.Value = results.round(3)
         return(results)
     
     #%% Berechnungsansatz A.4: Gründächer    
@@ -221,13 +183,7 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+
         h : float
           installation heigth (mm)
             
@@ -239,9 +195,7 @@ class Surface(object):
                         
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a 
+        Ranges of validity for the parameters are:
           h : 40 - 500 mm
           kf : 18 - 100 mm/h
           WKmax_WP : 0.35 - 0.65
@@ -254,8 +208,6 @@ class Surface(object):
         -------
         results : DataFrame 
         '''       
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(h, 'h_green_roof')
         validRange(kf, 'kf_green_roof')
         validRange(wkmax_wp, 'WKmax_WP_green_roof')
@@ -266,7 +218,6 @@ class Surface(object):
         g = 0
         v = 1-a-g
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Green foof', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -287,21 +238,13 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+                   
         Sp : float
             storage height (mm)
                         
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a 
+        Ranges of validity for the parameters are:
           Sp : 3 - 10 mm
           
         Standard Sp-value is:
@@ -311,15 +254,12 @@ class Surface(object):
         -------
         results : DataFrame 
         '''
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(sp, 'Sp_storage_roof') 
         
         a = 0.9231 + 0.000254*self.p - 0.0003226*self.etp - 0.1472*np.log(sp+1)
         g = 0
         v = 1-a-g 
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Storage roof', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -342,13 +282,7 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+                    
         FA :  float
             joint ratio of the pavers or partially permeable elements (%)
             
@@ -363,9 +297,7 @@ class Surface(object):
                         
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           FA : 2 - 10 %
           kf : 6 - 100 mm/h
           Sp : 0.1 - 2 mm
@@ -411,7 +343,7 @@ class Surface(object):
             g = 1 - (a + v)
      
         e = 0
-        # pfractions = (a, g, v)
+
         results = [{'Element' : 'Permeable surface', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -437,13 +369,7 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+                  
         Sp : float
             storage height (mm)
            
@@ -455,9 +381,7 @@ class Surface(object):
                               
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           Sp : 2.5 - 4.2 mm
           h : 50 - 100 mm
           kf : 10 - 180 mm/h
@@ -472,8 +396,6 @@ class Surface(object):
         results : DataFrame 
         '''
     
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(sp, 'Sp_porous_surface')
         validRange(h, 'h_porous_surface')
         validRange(kf, 'kf_porous_surface')
@@ -486,7 +408,6 @@ class Surface(object):
               + 0.0006249*sp + 0.123*np.log(h) - 0.000002806*kf)
         g = max((1 - (a + v)), 0.0) 
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Porous surface', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -509,13 +430,7 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+                   
         FA :  float
             joint ratio of the pavers or partially permeable elements (%)
            
@@ -527,9 +442,7 @@ class Surface(object):
                         
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           FA : 20 - 30 %
           Sp : 0.1 - 2 mm
           WKmax_WP : 0.1 - 0.2
@@ -544,8 +457,6 @@ class Surface(object):
         results : DataFrame 
         '''    
      
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(fa, 'FA_paver_stonegrid')
         validRange(sp, 'Sp_paver_stonegrid')
         validRange(wkmax_wp, 'WKmax_WP_paver_stonegrid') 
@@ -559,7 +470,6 @@ class Surface(object):
         g = max((1 - (a + v)), 0.0)
 
         e = 0
-        # pfractions = (a, g, v)
         results = [{'Element' : 'Paver stone-grid', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
@@ -583,13 +493,7 @@ class Surface(object):
         ----------
         Area : float
               element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+                   
         h : float
           installation heigth (mm)
         
@@ -601,9 +505,7 @@ class Surface(object):
                         
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           h : 500 - 100 mm
           Sp : 2.5 - 4.2 mm
           kf : 0.72 - 10 mm/h
@@ -643,14 +545,14 @@ class Surface(object):
         return(results)
         
     #%% New class Measure
-class Measure(object):
-    # def __init__(self, *surfaces):
-    #     # self.surfaces: surfaces
-    #     pass
-        
+class Measure(object):      
     def __str__(self):
-        return "Measure to reduce runoff from the given surfaces"
-    
+        return (
+            "Measure to reduce runoff from the given surfaces."
+            "The following methos area available: drainage(), "
+            "surf_infiltration(), infilt_swale(), swale_trench(), "
+            "swale_trench_system(), rainwater_usage(), and pod_system()"
+    )
     #%% Aufteilungswerte und Berechnungsansätze für Anlagen
     # Ableitung: Rohr, Rinne, steiler Graben
     # Drainage: pipe, channel, steep ditch
@@ -661,26 +563,11 @@ class Measure(object):
         
         Parameters
         ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
         drainage_type : string
                        "pipe", "rohr", "channel", "rinne", "steep ditch",
                        "steiler graben", "ditch with vegetation",
                        "gräben mit bewuchs"
-                        
-        Notes    
-        ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a   
-              
+                                      
         Returns
         -------
         results : DataFrame 
@@ -693,10 +580,7 @@ class Measure(object):
         veg_drainage = ("Shallow ditches with vegetation",
                         "Ditch with vegetation", "ditch with vegetation",
                         "Flache Gräben mit Bewuchs", "Gräben mit Bewuchs")
-    
-        # validRange(self.p, 'P')
-        # validRange(self.etp, 'ETp')
-    
+       
         if ((drainage_type in drainages) or
             (drainage_type in veg_drainage))  == False:
             return ("Wrong input as drinage-type")
@@ -744,21 +628,12 @@ class Measure(object):
     
     #%% Berechnungsansatz B.2: Flächenversickerung
     # Surface infiltration
-    def surf_infiltration(self,  kf, *surfaces, fasf="fasf_standard"):
+    def surf_infiltration(self, kf, *surfaces, fasf="fasf_standard"):
         '''
         Calculates water balance components for surface infiltration
         
         Parameters
-        ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+        ----------           
         kf : float 
            hydraulic conductivity (mm /h)
            
@@ -767,9 +642,7 @@ class Measure(object):
                             
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           kf : 325 - 1100 mm/h
           FAsf : 66394*kf*exp(-1.197) - 70910*kf*exp(-1.117) (%)
           
@@ -781,8 +654,6 @@ class Measure(object):
         results : DataFrame 
         '''
         
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(kf, 'kf_surf_infiltration') 
         
         if (fasf == "fasf_standard"):
@@ -836,16 +707,7 @@ class Measure(object):
         Calculates water balance components for infiltration swales
         
         Parameters
-        ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+        ----------           
         kf : float 
            hydraulic conductivity (mm /h)
            
@@ -854,9 +716,7 @@ class Measure(object):
                             
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           kf : 14 - 3600 mm/h
           FAsf : 27.14*kf*exp(-0.303) - 62.414*kf*exp(-0.328) (%)
           
@@ -868,9 +728,7 @@ class Measure(object):
         results : DataFrame 
         '''  
     
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
-        # validRange(kf, 'kf_infilt_swale') 
+        validRange(kf, 'kf_infilt_swale') 
         
         if (fasm == "fasm_standard"):
             fasm = 42.323*kf**(-0.314)       
@@ -878,7 +736,6 @@ class Measure(object):
         g = (0.8608 + 0.02385*np.log(self.p) - 0.00005331*self.etp - 0.002827*fasm
               - 0.000002493*kf + 0.0009514*np.log(kf/fasm))
         v = 0.000008562*self.etp + (2.611/(self.p-64.35))*fasm**0.9425 - 0.000001211*kf
-        # a = 1 - g - v
         # To force positive values or zero
         a = max((1 - (g + v)), 0.0)
         e = 0
@@ -922,16 +779,7 @@ class Measure(object):
         Calculates water balance components for swale-trench elements
         
         Parameters
-        ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+        ----------           
         kf : float 
            hydraulic conductivity (mm /h)
            
@@ -940,9 +788,7 @@ class Measure(object):
                             
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           kf : 3.6 - 36 mm/h
           FAsf : 14.608*kf*exp(-0.406) - 47.634*kf*exp(-0.438) (%)
           
@@ -954,8 +800,6 @@ class Measure(object):
         results : DataFrame 
         ''' 
     
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(kf, 'kf_swale_trench')
         
         if (fasm == "fasm_standard"):
@@ -1009,16 +853,7 @@ class Measure(object):
         Calculates water balance components for swale-trench elements
         
         Parameters
-        ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+        ----------           
         qDr : float
             throttled discharge yield (l/(s*ha))
             
@@ -1030,9 +865,7 @@ class Measure(object):
                             
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           qDr : 1 - 10 l/(s*ha)
           kf : 0.36 - 3.6 mm/h
           FAsf : -
@@ -1044,9 +877,7 @@ class Measure(object):
         -------
         results : DataFrame 
         ''' 
-    
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
+
         validRange(qdr, 'qDr_swale_trench_system')
         validRange(kf, 'kf_swale_trench_system')
         
@@ -1103,16 +934,7 @@ class Measure(object):
         Calculates water balance components for rainwater usage
         
         Parameters
-        ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+        ----------            
         VSp : float
             Specific storage volume (mm)
             
@@ -1129,9 +951,7 @@ class Measure(object):
                             
         Notes    
         ------
-        Ranges of validity for the paremeters are:
-          P : 500 - 1700 mm/a
-          ETp : 450 - 700 mm/a
+        Ranges of validity for the parameters are:
           VSp : 10 - 200 mm
           VBr : 0 - 5 mm/d
           FAbw : 0 - 5
@@ -1146,8 +966,6 @@ class Measure(object):
         results : DataFrame 
         '''     
         
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(vsp, 'VSp_rainwater_usage')
         validRange(vbr, 'VBr_rainwater_usage')
         validRange(fabw, 'FAbw_rainwater_usage')
@@ -1209,19 +1027,11 @@ class Measure(object):
     def pod_system(self, aw, A_1, a_1, *surfaces, A_2= 0, a_2= 0.0, A_3= 0, a_3= 0.0,
                A_4= 0, a_4= 0.0):
         '''
-        Calculates water balance components for rainwater usage
+        Calculates water balance components for pod systems
+        (water surface with permanent storage)
         
         Parameters
-        ----------
-        Area : float
-             element area (m2)      
-        
-        P : float
-          precipitation (mm/a)
-          
-        ETp : float
-            evapotranspiration (mm/a)
-            
+        ----------           
         Aw : float
             pod surface (m2)
             
@@ -1234,7 +1044,7 @@ class Measure(object):
                             
         Notes    
         ------
-        Ranges of validity for the paremeters are:
+        Ranges of validity for the parameters are:
           P : 500 - 1700 mm/a
           ETp : 450 - 700 mm/a
           a_i : 0 - 1
@@ -1244,8 +1054,6 @@ class Measure(object):
         results : DataFrame 
         '''
         
-        validRange(self.p, 'P')
-        validRange(self.etp, 'ETp')
         validRange(a_1, 'a_1_pod_system')
         validRange(a_2, 'a_2_pod_system')
         validRange(a_3, 'a_1_pod_system')
@@ -1353,7 +1161,7 @@ def watbal(*study_areas):
         sys_results = pd.concat([df_layout, *study_areas, sys_results],
                                 join= "inner", ignore_index=True)
         
-        # this still need to be solved
+
         # delete column e and ve if all column is zero
         
         if (True in (sys_results.e.values != 0)) == False:
