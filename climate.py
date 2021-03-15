@@ -2,12 +2,10 @@
 """
 Created on Mon Feb 22 13:02:41 2021
 
-@author: Edi
+@author: Edwin Echeverri Salazar
 """
 
-#  Database of P from 2000-2020
-#  ETp is stimated as a fraction of P
-# Source:  https://opendata.dwd.de/climate_environment/CDC/regional_averages_DE/annual/
+#  Source: HAD, 2003
 climate_dict = {
     'Augsburg' : ['(800 - 900)', '(550 - 575)', 900, 575],
     'Berlin' : ['(550 - 600)', '(575 - 600)', 600, 600],
@@ -73,5 +71,3 @@ def climate(place):
     p = climate_dict[place][2]
     etp = climate_dict[place][3]
     return p, etp
-
-# p,etp = climate("Bayern")

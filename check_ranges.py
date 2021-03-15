@@ -2,7 +2,7 @@
 """
 Created on Fri Feb 19 10:12:05 2021
 
-@author: Edi
+@author: Edwin Echeverri Salazar
 """
 
 param_rages = {
