@@ -60,7 +60,7 @@ class Surface(object):
         '''    
 
         e = 0
-        results = [{'Element' : 'Garten / green area', 'Area' : round(area, 3),
+        results = [{'Element' : 'Garden / green area', 'Area' : round(area, 3),
                     'Au' : round(area*a), 'P': self.p, 'Etp' : self.etp,
                     'a' : round(a, 3), 'g' : round(g, 3), 'v' : round(v, 3),
                     'e' : round(e, 3), 'Vp': round(area*self.p/1000),
