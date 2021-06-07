@@ -3,5 +3,5 @@ In the present work, a hydrological model based on regression equations proposed
 
 Important!!!
 
-All the relevant method to apply the water balance can be found in the file dwa_a102.py
+All the relevant methods to apply the water balance can be found in the file dwa_a102.py
 The additional python files contain functions that are required by dwa_a102.py.
